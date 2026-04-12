@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AGON: The Archaic Age — Game Mechanics Rulebook</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#f9f9f8;color:#1a1a18;min-height:100vh}
+.wrap{padding:1.5rem 1rem;max-width:720px;margin:0 auto}
+.game-title{font-size:22px;font-weight:500;color:#1a1a18;letter-spacing:0.5px}
+.game-sub{font-size:13px;color:#6b6b67;margin-top:4px}
+.tabs{display:flex;gap:4px;margin:1.25rem 0 1rem;flex-wrap:wrap}
+.tab{padding:6px 14px;border-radius:8px;border:0.5px solid #d4d2c9;font-size:13px;cursor:pointer;color:#6b6b67;background:transparent;transition:all .15s}
+.tab.active{background:#f0efe8;color:#1a1a18;border-color:#b4b2a9;font-weight:500}
+.section{display:none}
+.section.active{display:block}
+
+.loop-grid{display:grid;grid-template-columns:1fr 40px 1fr 40px 1fr;align-items:center;gap:8px;margin:1rem 0}
+.domain-card{border-radius:12px;border:0.5px solid #d4d2c9;padding:1rem;text-align:center}
+.domain-card.hades{background:#f5f0fb;border-color:#b9a8e8}
+.domain-card.zeus{background:#fdf8ee;border-color:#e8c86a}
+.domain-card.poseidon{background:#eef6fc;border-color:#84c5e8}
+.domain-icon{font-size:22px;margin-bottom:6px}
+.domain-name{font-size:13px;font-weight:500;color:#1a1a18}
+.domain-desc{font-size:11px;color:#6b6b67;margin-top:4px;line-height:1.4}
+.arrow-big{font-size:20px;color:#b4b2a9;text-align:center}
+
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:1rem 0}
+.stat-card{background:#f0efe8;border-radius:8px;padding:12px;text-align:center}
+.stat-num{font-size:22px;font-weight:500;color:#1a1a18}
+.stat-lbl{font-size:11px;color:#6b6b67;margin-top:2px}
+
+.action-list{display:flex;flex-direction:column;gap:10px;margin:1rem 0}
+.action-item{display:flex;gap:12px;align-items:flex-start;background:#f0efe8;border-radius:8px;padding:12px 14px;border:0.5px solid #d4d2c9}
+.action-badge{min-width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;flex-shrink:0}
+.a-hades{background:#ede8fb;color:#5a3fa8}
+.a-zeus{background:#fef3d0;color:#8a6218}
+.a-play{background:#e6f9f0;color:#1a7a4a}
+.a-poseidon{background:#e4f2fb;color:#1a5a88}
+.a-quest{background:#fce8e8;color:#8a2a2a}
+.a-free{background:#e8e6df;color:#6b6b67}
+.action-title{font-size:13px;font-weight:500;color:#1a1a18}
+.action-detail{font-size:12px;color:#6b6b67;margin-top:3px;line-height:1.5}
+.action-note{font-size:11px;color:#9c9a92;margin-top:4px;font-style:italic}
+
+.card-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:1rem 0}
+.card-type{border-radius:12px;border:0.5px solid #d4d2c9;padding:1rem;overflow:hidden}
+.card-type.spirit{background:#f0f4ff}
+.card-type.god{background:#fff8e8}
+.card-type.quest{background:#f0fdf4}
+.card-type.goal{background:#fdf0f8}
+.card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.card-label{font-size:11px;font-weight:500;color:#6b6b67;text-transform:uppercase;letter-spacing:0.5px}
+.card-cost{font-size:11px;font-weight:500;background:rgba(0,0,0,0.06);border-radius:8px;padding:2px 8px;color:#1a1a18}
+.example-card{background:#fff;border:0.5px solid #d4d2c9;border-radius:8px;padding:8px 10px;margin-top:6px}
+.ex-name{font-size:12px;font-weight:500;color:#1a1a18}
+.ex-text{font-size:11px;color:#6b6b67;margin-top:2px;line-height:1.4}
+.ex-pp{font-size:11px;color:#6a4ab8;font-weight:500;margin-top:4px}
+
+.round-timeline{display:flex;flex-direction:column;gap:0;margin:1rem 0}
+.round-step{display:flex;gap:12px;align-items:flex-start}
+.round-dot{display:flex;flex-direction:column;align-items:center;flex-shrink:0}
+.rdot{width:10px;height:10px;border-radius:50%;background:#b4b2a9;margin-top:5px}
+.rline{width:1px;background:#d4d2c9;flex:1;min-height:20px;margin:2px auto}
+.round-content{padding-bottom:16px}
+.round-title{font-size:13px;font-weight:500;color:#1a1a18}
+.round-detail{font-size:12px;color:#6b6b67;margin-top:2px;line-height:1.5}
+.rdot.highlight{background:#7058d8}
+.rdot.end{background:#e85830}
+
+.goal-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:1rem 0}
+.goal-card{background:#f0efe8;border-radius:8px;border:0.5px solid #d4d2c9;padding:10px 12px}
+.goal-num{font-size:11px;color:#9c9a92;margin-bottom:4px}
+.goal-name{font-size:12px;font-weight:500;color:#1a1a18}
+.goal-rule{font-size:11px;color:#6b6b67;margin-top:3px;line-height:1.4}
+.goal-pp{font-size:11px;color:#d87020;font-weight:500;margin-top:4px}
+
+.tip-box{background:#f0efe8;border-left:3px solid #7058d8;border-radius:0 8px 8px 0;padding:10px 14px;margin:12px 0;font-size:12px;color:#6b6b67;line-height:1.5}
+.tip-box strong{color:#1a1a18;font-weight:500}
+
+.score-row{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-radius:8px;background:#f0efe8;margin:4px 0;font-size:13px;color:#1a1a18}
+.score-pp{font-weight:500;color:#7058d8}
+
+.res-row{display:flex;gap:12px;margin:1rem 0;flex-wrap:wrap}
+.res-chip{display:flex;align-items:center;gap:8px;background:#f0efe8;border-radius:12px;border:0.5px solid #d4d2c9;padding:10px 14px;flex:1}
+.res-icon{font-size:18px}
+.res-name{font-size:13px;font-weight:500;color:#1a1a18}
+.res-desc{font-size:11px;color:#6b6b67;margin-top:2px}
+
+.setup-list{display:flex;flex-direction:column;gap:8px;margin:1rem 0}
+.setup-item{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:#6b6b67;line-height:1.5}
+.setup-num{min-width:22px;height:22px;border-radius:50%;background:#d4d2c9;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#1a1a18;flex-shrink:0;margin-top:1px}
+
+.section-title{font-size:15px;font-weight:500;color:#1a1a18;margin-bottom:2px}
+.section-sub{font-size:12px;color:#6b6b67;margin-bottom:14px}
+
+.lock-badge{display:inline-flex;align-items:center;gap:4px;background:#e8f5e9;color:#2a7a3a;font-size:11px;font-weight:500;border-radius:8px;padding:3px 8px;margin-top:8px}
+
+.tag{display:inline-block;font-size:10px;font-weight:500;border-radius:8px;padding:2px 7px;margin-right:3px;margin-top:4px}
+.tag.generate{background:#fff3d0;color:#8a6010}
+.tag.draw{background:#f0ecff;color:#5a3fa8}
+.tag.score{background:#d0eeff;color:#1a5a88}
+.tag.combo{background:#e8fded;color:#1a7a3a}
+
+@media(max-width:520px){
+  .loop-grid{grid-template-columns:1fr;gap:4px}
+  .arrow-big{transform:rotate(90deg)}
+  .stat-row{grid-template-columns:1fr 1fr}
+  .card-grid{grid-template-columns:1fr}
+  .goal-cards{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div style="display:flex;justify-content:space-between;align-items:flex-start">
+  <div>
+    <div class="game-title">AGON: The Archaic Age</div>
+    <div class="game-sub">Griffin Games · 2–4 players · 50–60 min · Engine builder</div>
+  </div>
+  <div style="font-size:11px;color:#9c9a92;text-align:right;line-height:1.8">Design reference<br>v1.0</div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="show('overview', this)">Overview</button>
+  <button class="tab" onclick="show('actions', this)">Turn actions</button>
+  <button class="tab" onclick="show('cards', this)">Cards</button>
+  <button class="tab" onclick="show('rounds', this)">Round structure</button>
+  <button class="tab" onclick="show('scoring', this)">Scoring &amp; setup</button>
+</div>
+
+<!-- OVERVIEW -->
+<div class="section active" id="s-overview">
+  <div class="section-title">The core loop</div>
+  <div class="section-sub">Three divine domains power your engine. Each feeds the next.</div>
+  <div class="loop-grid">
+    <div class="domain-card hades">
+      <div class="domain-icon">⚫</div>
+      <div class="domain-name">Hades' Domain</div>
+      <div class="domain-desc"><strong>Acquire cards.</strong> Pay ambrosia to add spirit or god cards to your hand, then play them to your engine.</div>
+    </div>
+    <div class="arrow-big">→</div>
+    <div class="domain-card zeus">
+      <div class="domain-icon">⚡</div>
+      <div class="domain-name">Zeus' Domain</div>
+      <div class="domain-desc"><strong>Gain resources.</strong> Collect ambrosia or nectar. Your engine boosts this every round automatically.</div>
+    </div>
+    <div class="arrow-big">→</div>
+    <div class="domain-card poseidon">
+      <div class="domain-icon">🔱</div>
+      <div class="domain-name">Poseidon's Domain</div>
+      <div class="domain-desc"><strong>Score points.</strong> Spend resources here to convert them into Patron Points. Engine cards boost your rate.</div>
+    </div>
+  </div>
+  <div class="tip-box">
+    <strong>The engine-building moment:</strong> At the start of every round, all cards in your play area automatically produce their resources — before you even take a turn. The more cards you've built, the more you generate for free.
+  </div>
+  <div class="stat-row">
+    <div class="stat-card"><div class="stat-num">6</div><div class="stat-lbl">Rounds</div></div>
+    <div class="stat-card"><div class="stat-num">2</div><div class="stat-lbl">Actions per turn</div></div>
+    <div class="stat-card"><div class="stat-num">3</div><div class="stat-lbl">Resource types</div></div>
+    <div class="stat-card"><div class="stat-num">3</div><div class="stat-lbl">Ways to earn PP</div></div>
+  </div>
+  <div class="res-row">
+    <div class="res-chip">
+      <div class="res-icon">🟡</div>
+      <div class="res-info">
+        <div class="res-name">Ambrosia</div>
+        <div class="res-desc">Common currency. Acquire cards, activate effects, score PP. Gained easily from Zeus or engine cards.</div>
+      </div>
+    </div>
+    <div class="res-chip">
+      <div class="res-icon">🔵</div>
+      <div class="res-info">
+        <div class="res-name">Nectar</div>
+        <div class="res-desc">Premium resource. Worth more at Poseidon's domain. Mainly from god cards and upgrading.</div>
+      </div>
+    </div>
+    <div class="res-chip">
+      <div class="res-icon">⭐</div>
+      <div class="res-info">
+        <div class="res-name">Patron Points (PP)</div>
+        <div class="res-desc">Victory points. Earned at Poseidon's domain, from end-of-round goals, and from quest cards.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ACTIONS -->
+<div class="section" id="s-actions">
+  <div class="section-title">Your turn</div>
+  <div class="section-sub">Take exactly 2 actions. You may repeat the same action twice.</div>
+  <div class="action-list">
+    <div class="action-item">
+      <div class="action-badge a-hades">⚫</div>
+      <div class="action-content">
+        <div class="action-title">Visit Hades' Domain — Acquire a card</div>
+        <div class="action-detail">Pay the ambrosia (or nectar) cost shown on any face-up card in the market. Add it to your hand. The market immediately refills from the deck.</div>
+        <div class="action-note">Market = 5 spirit cards face-up + 2 god cards face-up, always replenished.</div>
+      </div>
+    </div>
+    <div class="action-item">
+      <div class="action-badge a-zeus">⚡</div>
+      <div class="action-content">
+        <div class="action-title">Visit Zeus' Domain — Gain resources</div>
+        <div class="action-detail">Gain 2 ambrosia OR 1 nectar (your choice). For each card in your engine with a Zeus symbol (⚡), gain +1 extra ambrosia on top.</div>
+        <div class="action-note">This action is always available — no prerequisites. You can always do something.</div>
+      </div>
+    </div>
+    <div class="action-item">
+      <div class="action-badge a-play">▶</div>
+      <div class="action-content">
+        <div class="action-title">Play a card — Build your engine</div>
+        <div class="action-detail">Move a card from your hand to your play area (engine). Trigger its "on play" effect immediately. From next round onwards, it produces resources automatically at round start.</div>
+        <div class="action-note">No cost to play — the cost was paid when acquiring at Hades' domain.</div>
+      </div>
+    </div>
+    <div class="action-item">
+      <div class="action-badge a-poseidon">🔱</div>
+      <div class="action-content">
+        <div class="action-title">Visit Poseidon's Domain — Score Patron Points</div>
+        <div class="action-detail">Spend resources to earn PP. Base rates: 3 ambrosia → 1 PP, or 1 nectar → 2 PP. Each Poseidon card (🔱) in your engine improves conversions by +1 PP per use.</div>
+        <div class="action-note">You may spend as much as you want in one visit.</div>
+      </div>
+    </div>
+    <div class="action-item">
+      <div class="action-badge a-quest">📜</div>
+      <div class="action-content">
+        <div class="action-title">Complete a quest — Claim secret PP</div>
+        <div class="action-detail">Reveal a quest card from your hand if its condition is currently met. Gain the PP shown and place the quest face-up in your score pile. Each player can complete up to 2 quests.</div>
+        <div class="action-note">Quest completion is a free action — it does not cost one of your 2 actions.</div>
+      </div>
+    </div>
+    <div class="action-item">
+      <div class="action-badge a-free">✕</div>
+      <div class="action-content">
+        <div class="action-title">Emergency — Discard for ambrosia</div>
+        <div class="action-detail">Discard any 1 card from your hand → gain 1 ambrosia immediately. This is always available as a backup.</div>
+        <div class="action-note">Anti-deadlock safety valve. If you ever feel stuck, this gets you moving again.</div>
+        <div class="lock-badge">No deadlock — you always have a legal action</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CARDS -->
+<div class="section" id="s-cards">
+  <div class="section-title">Card types</div>
+  <div class="section-sub">Four card types — each has a different role in your engine.</div>
+  <div class="card-grid">
+    <div class="card-type spirit">
+      <div class="card-header">
+        <div class="card-label">Spirit cards</div>
+        <div class="card-cost">1–2 ambrosia</div>
+      </div>
+      <div class="tag generate">⚡ generates</div>
+      <div style="font-size:11px;color:#6b6b67;margin-top:8px;line-height:1.5">Cheap and stackable. Most produce 1 ambrosia/round. Build a foundation of spirits before going for gods.</div>
+      <div class="example-card">
+        <div class="ex-name">Shade of the Warrior</div>
+        <div class="ex-text">On play: gain 1 ambrosia. Each round: +1 ambrosia.</div>
+        <div class="ex-pp">Worth 1 PP at game end</div>
+      </div>
+      <div class="example-card">
+        <div class="ex-name">Shade of the Athlete</div>
+        <div class="ex-text">Each round: +1 ambrosia. When you score at Poseidon's, pay 1 less ambrosia per visit this round.</div>
+        <div class="ex-pp">Worth 1 PP at game end</div>
+      </div>
+      <div class="example-card">
+        <div class="ex-name">Shade of the Oracle</div>
+        <div class="ex-text">On play: peek at the next 2 round goal cards. Every 2nd round: +1 nectar.</div>
+        <div class="ex-pp">Worth 1 PP at game end</div>
+      </div>
+    </div>
+    <div class="card-type god">
+      <div class="card-header">
+        <div class="card-label">God cards</div>
+        <div class="card-cost">3–4 ambrosia / 1–2 nectar</div>
+      </div>
+      <div class="tag combo">⭐ multiplier</div>
+      <div style="font-size:11px;color:#6b6b67;margin-top:8px;line-height:1.5">Powerful and rare. God cards multiply your existing engine — worth more when you already have spirits built up.</div>
+      <div class="example-card">
+        <div class="ex-name">Apollo</div>
+        <div class="ex-text">Each round: +1 nectar. All your spirit cards produce +1 extra ambrosia per round.</div>
+        <div class="ex-pp">Worth 3 PP at game end</div>
+      </div>
+      <div class="example-card">
+        <div class="ex-name">Athena</div>
+        <div class="ex-text">On play: draw 3 quest cards, keep 1. Your completed quests are worth +1 PP each.</div>
+        <div class="ex-pp">Worth 2 PP at game end</div>
+      </div>
+      <div class="example-card">
+        <div class="ex-name">Ares</div>
+        <div class="ex-text">On play: gain 2 ambrosia. Whenever you score at Poseidon's domain, gain +2 PP per action.</div>
+        <div class="ex-pp">Worth 2 PP at game end</div>
+      </div>
+    </div>
+    <div class="card-type quest">
+      <div class="card-header">
+        <div class="card-label">Quest cards</div>
+        <div class="card-cost">Secret objectives</div>
+      </div>
+      <div class="tag score">📜 secret PP</div>
+      <div style="font-size:11px;color:#6b6b67;margin-top:8px;line-height:1.5">Dealt at setup. Each player gets 3, keeps 2. Complete them during play for bonus PP — opponents don't know your goals.</div>
+      <div class="example-card">
+        <div class="ex-name">"Champion of Spirits"</div>
+        <div class="ex-text">Have 5 or more spirit cards in your engine.</div>
+        <div class="ex-pp">Reward: 3 PP</div>
+      </div>
+      <div class="example-card">
+        <div class="ex-name">"Nectar of the Gods"</div>
+        <div class="ex-text">Spend 6 or more nectar total across the game.</div>
+        <div class="ex-pp">Reward: 4 PP</div>
+      </div>
+      <div class="example-card">
+        <div class="ex-name">"Favored of Olympus"</div>
+        <div class="ex-text">Have 2 or more god cards in your engine.</div>
+        <div class="ex-pp">Reward: 4 PP</div>
+      </div>
+    </div>
+    <div class="card-type goal">
+      <div class="card-header">
+        <div class="card-label">Round goal cards</div>
+        <div class="card-cost">Shared objectives</div>
+      </div>
+      <div class="tag draw">🏆 end of round</div>
+      <div style="font-size:11px;color:#6b6b67;margin-top:8px;line-height:1.5">One revealed per round, visible to all. At round end, whoever qualifies wins the PP. Creates rivalry and shifts priorities mid-game.</div>
+      <div class="example-card">
+        <div class="ex-name">"Richest Olympian"</div>
+        <div class="ex-text">Most ambrosia when the round ends.</div>
+        <div class="ex-pp">Reward: 3 PP (tiebreaker: most nectar)</div>
+      </div>
+      <div class="example-card">
+        <div class="ex-name">"Favored of Hades"</div>
+        <div class="ex-text">Most cards total in your engine.</div>
+        <div class="ex-pp">Reward: 3 PP</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ROUNDS -->
+<div class="section" id="s-rounds">
+  <div class="section-title">Round structure</div>
+  <div class="section-sub">6 rounds. Each round follows the same sequence.</div>
+  <div class="round-timeline">
+    <div class="round-step">
+      <div class="round-dot"><div class="rdot highlight"></div><div class="rline"></div></div>
+      <div class="round-content">
+        <div class="round-title">1 · Round start — Engines fire</div>
+        <div class="round-detail">All players simultaneously collect resources from their engines. Each card in your play area produces its listed resource. This happens before any player takes a turn — automatic and simultaneous.</div>
+      </div>
+    </div>
+    <div class="round-step">
+      <div class="round-dot"><div class="rdot"></div><div class="rline"></div></div>
+      <div class="round-content">
+        <div class="round-title">2 · Goal reveal</div>
+        <div class="round-detail">If not already visible, flip the top card of the round goal deck face-up. All players can see what they're competing for this round.</div>
+      </div>
+    </div>
+    <div class="round-step">
+      <div class="round-dot"><div class="rdot"></div><div class="rline"></div></div>
+      <div class="round-content">
+        <div class="round-title">3 · Player turns (clockwise)</div>
+        <div class="round-detail">Starting with the first player, each player takes their 2 actions in turn. Quest cards may be revealed at any time during your turn (free action). Play continues clockwise until all players have gone.</div>
+      </div>
+    </div>
+    <div class="round-step">
+      <div class="round-dot"><div class="rdot"></div><div class="rline"></div></div>
+      <div class="round-content">
+        <div class="round-title">4 · Round end — Score the goal</div>
+        <div class="round-detail">Check the current round goal card. The qualifying player(s) receive the stated Patron Points. Place the scored goal card in the discard pile.</div>
+      </div>
+    </div>
+    <div class="round-step">
+      <div class="round-dot"><div class="rdot"></div><div class="rline"></div></div>
+      <div class="round-content">
+        <div class="round-title">5 · Pass first player marker</div>
+        <div class="round-detail">The first player marker passes clockwise. Everyone gets to go first at least once in a 4-player game, and first access to the market matters.</div>
+      </div>
+    </div>
+    <div class="round-step">
+      <div class="round-dot"><div class="rdot end"></div></div>
+      <div class="round-content">
+        <div class="round-title">After round 6 — Final scoring</div>
+        <div class="round-detail">Add all Patron Points: round goals scored + quest cards completed + PP from god cards + PP from spirit cards. Highest total wins. Tiebreaker: most resources remaining.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title" style="margin-top:1rem">The 6 round goals</div>
+  <div class="section-sub">Shuffled — players don't know what's coming next.</div>
+  <div class="goal-cards">
+    <div class="goal-card"><div class="goal-num">Round goal 1</div><div class="goal-name">Richest Olympian</div><div class="goal-rule">Most ambrosia held at round end. Tiebreaker: most nectar.</div><div class="goal-pp">Winner: 3 PP</div></div>
+    <div class="goal-card"><div class="goal-num">Round goal 2</div><div class="goal-name">Champion of Spirits</div><div class="goal-rule">Most spirit cards currently in your engine.</div><div class="goal-pp">Winner: 3 PP</div></div>
+    <div class="goal-card"><div class="goal-num">Round goal 3</div><div class="goal-name">Nectar of the Gods</div><div class="goal-rule">Most nectar held at round end.</div><div class="goal-pp">Winner: 3 PP · Tie: both get 2 PP</div></div>
+    <div class="goal-card"><div class="goal-num">Round goal 4</div><div class="goal-name">Touched by Olympus</div><div class="goal-rule">Most god cards in engine. Tiebreaker: highest combined PP value of god cards.</div><div class="goal-pp">Winner: 4 PP</div></div>
+    <div class="goal-card"><div class="goal-num">Round goal 5</div><div class="goal-name">Master of Quests</div><div class="goal-rule">Most quest cards completed so far. Tie: both receive PP.</div><div class="goal-pp">Winner: 3 PP · Tie: both get 2 PP</div></div>
+    <div class="goal-card"><div class="goal-num">Round goal 6 — Final</div><div class="goal-name">Grand Agon</div><div class="goal-rule">Most total cards in engine. PLUS all players earn 1 PP per god card in their engine.</div><div class="goal-pp">Leader: 4 PP + all earn 1 PP/god card</div></div>
+  </div>
+</div>
+
+<!-- SCORING & SETUP -->
+<div class="section" id="s-scoring">
+  <div class="section-title">Final scoring</div>
+  <div class="section-sub">Add all sources at the end of round 6.</div>
+  <div style="margin:1rem 0">
+    <div class="score-row"><span>PP from round goals</span><span class="score-pp">Tracked during play</span></div>
+    <div class="score-row"><span>PP from completed quest cards</span><span class="score-pp">2–4 PP each (up to 2 quests)</span></div>
+    <div class="score-row"><span>PP value of god cards in engine</span><span class="score-pp">2–3 PP each</span></div>
+    <div class="score-row"><span>PP value of spirit cards in engine</span><span class="score-pp">1 PP each</span></div>
+    <div class="score-row" style="border:0.5px solid #b4b2a9"><span style="font-weight:500">Total Patron Points</span><span class="score-pp">Most wins!</span></div>
+  </div>
+  <div class="tip-box"><strong>Tiebreaker:</strong> If tied on PP, the player with the most resources (ambrosia + nectar combined) wins. If still tied, the player with more god cards wins.</div>
+
+  <div class="section-title" style="margin-top:1.25rem">Game setup</div>
+  <div class="section-sub">Estimated setup time: 5 minutes</div>
+  <div class="setup-list">
+    <div class="setup-item"><div class="setup-num">1</div><span>Place the board. Separate spirit cards and god cards into two face-down shuffled decks.</span></div>
+    <div class="setup-item"><div class="setup-num">2</div><span>Reveal <strong>5 spirit cards</strong> face-up in Hades' domain. Reveal <strong>2 god cards</strong> face-up in the god section.</span></div>
+    <div class="setup-item"><div class="setup-num">3</div><span>Shuffle the 6 round goal cards. Place face-down in the goal slot. Reveal the top one — this is round 1's goal.</span></div>
+    <div class="setup-item"><div class="setup-num">4</div><span>Shuffle quest cards. Deal <strong>3 quest cards</strong> to each player. Each player secretly chooses 2 to keep and returns 1 to the bottom of the deck.</span></div>
+    <div class="setup-item"><div class="setup-num">5</div><span>Give each player: <strong>3 ambrosia tokens</strong> + <strong>2 spirit cards</strong> (dealt from the deck, added to hand, not the market).</span></div>
+    <div class="setup-item"><div class="setup-num">6</div><span>Youngest player takes the first player marker. The game begins!</span></div>
+  </div>
+
+  <div class="section-title" style="margin-top:1.25rem">Recommended component counts</div>
+  <div style="font-size:12px;color:#6b6b67;margin-top:8px;line-height:1.9">
+    Spirit cards: 40 (15 unique types, 2–3 copies each)<br>
+    God cards: 16 (8 unique gods, 2 copies each)<br>
+    Quest cards: 20 (deal 3 per player, extras available)<br>
+    Round goal cards: 6 (one per round, no repeats)<br>
+    Ambrosia tokens: 40<br>
+    Nectar tokens: 20<br>
+    Patron Point tokens: 50 (or use a track on the board)<br>
+    Player boards: 4<br>
+    First player marker: 1
+  </div>
+</div>
+
+</div>
+<script>
+function show(id, btn){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('s-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>
