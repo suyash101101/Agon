@@ -1,924 +1,563 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AGON: The Archaic Age — Game Mechanics Rulebook</title>
-  <style>
-    /* ── reset & base ─────────────────────────────────────────────────────── */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --dark:   #1A1A2E;
-      --mid:    #2C2C4A;
-      --panel:  #232340;
-      --gold:   #C8961E;
-      --amber:  #FFB300;
-      --light:  #F0EAD6;
-      --muted:  #A89F8C;
-      --blue:   #3A7BD5;
-      --green:  #27AE60;
-      --purple: #7D3C98;
-      --red:    #C0392B;
-      --radius: 6px;
-      --max:    860px;
-    }
-    html { scroll-behavior: smooth; }
-    body {
-      background: var(--dark);
-      color: var(--light);
-      font-family: 'Georgia', serif;
-      font-size: 15px;
-      line-height: 1.65;
-    }
-    a { color: var(--amber); text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    strong { color: var(--amber); font-weight: 700; }
-    em { color: var(--muted); }
-
-    /* ── layout ──────────────────────────────────────────────────────────── */
-    .page { max-width: var(--max); margin: 0 auto; padding: 0 20px 60px; }
-
-    /* ── hero ─────────────────────────────────────────────────────────────── */
-    .hero {
-      background: linear-gradient(160deg, #0f0f22 0%, #1e1e3a 60%, #2a1a10 100%);
-      border-bottom: 2px solid var(--gold);
-      padding: 52px 20px 40px;
-      text-align: center;
-    }
-    .hero h1 {
-      font-family: 'Georgia', serif;
-      font-size: clamp(2rem, 6vw, 3.4rem);
-      color: var(--gold);
-      letter-spacing: 0.04em;
-      line-height: 1.15;
-    }
-    .hero .sub {
-      margin-top: 10px;
-      font-size: 1rem;
-      color: var(--muted);
-      letter-spacing: 0.06em;
-    }
-    .hero .tag {
-      display: inline-block;
-      margin-top: 18px;
-      padding: 6px 18px;
-      border: 1px solid var(--gold);
-      border-radius: 20px;
-      font-size: 0.82rem;
-      color: var(--amber);
-      letter-spacing: 0.08em;
-    }
-
-    /* ── nav ──────────────────────────────────────────────────────────────── */
-    .nav {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: #12122a;
-      border-bottom: 1px solid var(--gold);
-      overflow-x: auto;
-      white-space: nowrap;
-    }
-    .nav ul {
-      display: inline-flex;
-      list-style: none;
-      padding: 0 16px;
-      gap: 0;
-    }
-    .nav ul li a {
-      display: block;
-      padding: 12px 14px;
-      font-size: 0.8rem;
-      color: var(--muted);
-      letter-spacing: 0.05em;
-      border-bottom: 2px solid transparent;
-      transition: color .2s, border-color .2s;
-    }
-    .nav ul li a:hover, .nav ul li a.active {
-      color: var(--amber);
-      border-color: var(--amber);
-      text-decoration: none;
-    }
-
-    /* ── stat strip ───────────────────────────────────────────────────────── */
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1px;
-      background: var(--gold);
-      border: 1px solid var(--gold);
-      border-radius: var(--radius);
-      overflow: hidden;
-      margin: 28px 0;
-    }
-    .stats .stat {
-      background: var(--mid);
-      padding: 16px 8px;
-      text-align: center;
-    }
-    .stats .stat .val {
-      display: block;
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: var(--amber);
-      line-height: 1;
-    }
-    .stats .stat .lbl {
-      display: block;
-      font-size: 0.72rem;
-      color: var(--muted);
-      margin-top: 4px;
-      letter-spacing: 0.05em;
-    }
-
-    /* ── sections ─────────────────────────────────────────────────────────── */
-    section { padding-top: 40px; }
-    .section-title {
-      font-size: 1.35rem;
-      color: var(--gold);
-      border-bottom: 1px solid var(--gold);
-      padding-bottom: 6px;
-      margin-bottom: 18px;
-      letter-spacing: 0.04em;
-    }
-    .section-title span { color: var(--muted); font-size: 0.85rem; margin-left: 8px; }
-    h3 {
-      font-size: 1rem;
-      color: var(--amber);
-      margin: 18px 0 6px;
-      font-family: Georgia, serif;
-    }
-    p { margin-bottom: 10px; }
-
-    /* ── domain loop ──────────────────────────────────────────────────────── */
-    .loop {
-      display: flex;
-      align-items: stretch;
-      gap: 0;
-      margin: 18px 0;
-    }
-    .loop .domain {
-      flex: 1;
-      background: var(--panel);
-      border: 1px solid var(--gold);
-      padding: 18px 14px;
-      text-align: center;
-    }
-    .loop .domain .icon { font-size: 1.6rem; }
-    .loop .domain .name {
-      font-size: 0.78rem;
-      color: var(--gold);
-      font-weight: 700;
-      letter-spacing: 0.06em;
-      margin: 6px 0 4px;
-      text-transform: uppercase;
-    }
-    .loop .domain .desc { font-size: 0.82rem; color: var(--muted); line-height: 1.45; }
-    .loop .arrow {
-      display: flex; align-items: center; padding: 0 8px;
-      color: var(--gold); font-size: 1.2rem;
-    }
-    @media (max-width: 580px) {
-      .loop { flex-direction: column; }
-      .loop .arrow { transform: rotate(90deg); align-self: center; padding: 4px 0; }
-    }
-
-    /* ── callout ──────────────────────────────────────────────────────────── */
-    .callout {
-      background: var(--panel);
-      border-left: 3px solid var(--amber);
-      border-radius: 0 var(--radius) var(--radius) 0;
-      padding: 12px 16px;
-      margin: 14px 0;
-      font-size: 0.9rem;
-      color: var(--light);
-    }
-    .callout.purple { border-color: var(--purple); }
-    .callout.green  { border-color: var(--green); }
-    .callout.gold   { border-color: var(--gold); }
-
-    /* ── action list ──────────────────────────────────────────────────────── */
-    .action-list { margin: 14px 0; }
-    .action-item {
-      display: flex;
-      gap: 12px;
-      background: var(--panel);
-      border: 1px solid #3a3a5a;
-      border-radius: var(--radius);
-      padding: 14px 16px;
-      margin-bottom: 8px;
-    }
-    .action-item .icon-col {
-      font-size: 1.3rem;
-      min-width: 28px;
-      text-align: center;
-      padding-top: 2px;
-    }
-    .action-item .text-col .head {
-      font-weight: 700;
-      color: var(--amber);
-      font-size: 0.92rem;
-      margin-bottom: 3px;
-    }
-    .action-item .text-col .body {
-      font-size: 0.86rem;
-      color: var(--muted);
-      line-height: 1.5;
-    }
-    .action-item.free { border-color: var(--purple); }
-    .action-item.free .text-col .head { color: #bf9de0; }
-
-    /* ── round steps ──────────────────────────────────────────────────────── */
-    .round-steps { counter-reset: step; margin: 14px 0; }
-    .step {
-      display: flex;
-      gap: 14px;
-      margin-bottom: 8px;
-      align-items: flex-start;
-    }
-    .step .num {
-      counter-increment: step;
-      min-width: 28px; height: 28px;
-      background: var(--gold);
-      color: #000;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-weight: 700; font-size: 0.82rem;
-      flex-shrink: 0;
-      margin-top: 2px;
-    }
-    .step .content .head { font-weight: 700; color: var(--light); font-size: 0.92rem; margin-bottom: 2px; }
-    .step .content .body { font-size: 0.86rem; color: var(--muted); line-height: 1.5; }
-
-    /* ── card grids ───────────────────────────────────────────────────────── */
-    .card-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-      gap: 10px;
-      margin: 14px 0;
-    }
-    .card {
-      background: var(--panel);
-      border: 1px solid #3a3a5a;
-      border-radius: var(--radius);
-      padding: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-    }
-    .card .card-head {
-      font-weight: 700;
-      color: var(--amber);
-      font-size: 0.88rem;
-    }
-    .card .card-cost {
-      font-size: 0.76rem;
-      color: var(--gold);
-      background: rgba(200,150,30,0.12);
-      display: inline-block;
-      padding: 2px 7px;
-      border-radius: 10px;
-      width: fit-content;
-    }
-    .card .card-effect {
-      font-size: 0.82rem;
-      color: var(--muted);
-      line-height: 1.45;
-    }
-    .card .card-pp {
-      font-size: 0.76rem;
-      color: var(--amber);
-      font-style: italic;
-      margin-top: auto;
-    }
-    .card .theme-tag {
-      font-size: 0.7rem;
-      color: #7a9fd4;
-      letter-spacing: 0.05em;
-    }
-
-    /* ── tables ───────────────────────────────────────────────────────────── */
-    .tbl-wrap { overflow-x: auto; margin: 14px 0; }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.86rem;
-    }
-    th {
-      background: var(--mid);
-      color: var(--gold);
-      font-weight: 700;
-      text-align: left;
-      padding: 8px 10px;
-      border: 1px solid #3a3a5a;
-      white-space: nowrap;
-    }
-    td {
-      padding: 7px 10px;
-      border: 1px solid #2e2e4a;
-      color: var(--light);
-      vertical-align: top;
-      line-height: 1.45;
-    }
-    tr:nth-child(even) td { background: #1e1e36; }
-    tr:nth-child(odd)  td { background: var(--dark); }
-
-    /* ── bullets ──────────────────────────────────────────────────────────── */
-    ul.rules { margin: 8px 0 10px 18px; }
-    ul.rules li { margin-bottom: 5px; font-size: 0.9rem; color: var(--light); }
-    ul.rules li::marker { color: var(--gold); }
-
-    /* ── quick ref ─────────────────────────────────────────────────────────── */
-    .qref {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0;
-      border: 1px solid var(--gold);
-      border-radius: var(--radius);
-      overflow: hidden;
-      margin: 14px 0;
-    }
-    .qref .col {
-      background: var(--panel);
-      padding: 16px;
-      font-size: 0.84rem;
-      line-height: 1.6;
-    }
-    .qref .col:first-child { border-right: 1px solid var(--gold); }
-    .qref .col h4 { color: var(--gold); font-size: 0.82rem; letter-spacing: 0.06em; margin-bottom: 8px; }
-    .qref .col ul { margin-left: 14px; }
-    .qref .col li { color: var(--muted); margin-bottom: 3px; }
-    .qref .col li::marker { color: var(--gold); }
-    @media (max-width: 520px) {
-      .qref { grid-template-columns: 1fr; }
-      .qref .col:first-child { border-right: none; border-bottom: 1px solid var(--gold); }
-    }
-
-    /* ── footer ───────────────────────────────────────────────────────────── */
-    footer {
-      margin-top: 60px;
-      border-top: 1px solid #3a3a5a;
-      padding: 22px 20px;
-      text-align: center;
-      font-size: 0.78rem;
-      color: var(--muted);
-    }
-
-    /* ── print ─────────────────────────────────────────────────────────────── */
-    @media print {
-      .nav, footer { display: none; }
-      body { background: #fff; color: #000; font-size: 11pt; }
-      .hero { background: #fff; color: #000; border-bottom: 2px solid #000; }
-      .hero h1 { color: #000; }
-    }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>AGON: The Archaic Age — Rulebook v4.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --ink:#0d0d1f;--ink2:#16162e;--ink3:#1e1e38;--panel:#232344;
+  --gold:#c8961e;--amber:#f5a623;--parch:#f0e6cc;--muted:#a89f8c;--dim:#6b6480;
+  --sl:#3d9e72;--dl:#3a78d4;--gl:#c8961e;--ml:#c0392b;--wl:#9b59b6;
+  --radius:6px;--max:980px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--ink);color:var(--parch);font-family:'EB Garamond',Georgia,serif;font-size:16px;line-height:1.65;overflow-x:hidden}
+h1,h2,h3,h4{font-family:'Cinzel',serif;letter-spacing:.03em}
+a{color:var(--amber);text-decoration:none}a:hover{text-decoration:underline}
+strong{color:var(--amber)}em{color:var(--muted);font-style:italic}p{margin-bottom:.75rem}
+.hero{position:relative;overflow:hidden;background:linear-gradient(170deg,#080814 0%,#12122a 40%,#1e1808 100%);border-bottom:2px solid var(--gold);padding:64px 20px 52px;text-align:center}
+.hero::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(200,150,30,.06) 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(200,150,30,.06) 40px);pointer-events:none}
+.eyebrow{font-family:'Cinzel Decorative',serif;font-size:.7rem;letter-spacing:.35em;color:var(--amber);margin-bottom:14px;opacity:.8}
+.hero h1{font-family:'Cinzel Decorative',serif;font-size:clamp(2.4rem,8vw,5rem);color:var(--gold);line-height:1;text-shadow:0 0 40px rgba(200,150,30,.4)}
+.hero-sub{font-family:'Cinzel',serif;font-size:clamp(.85rem,2vw,1.05rem);color:var(--muted);margin-top:10px;letter-spacing:.1em}
+.hero-tags{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:20px}
+.htag{border:1px solid var(--gold);border-radius:20px;padding:4px 14px;font-size:.74rem;color:var(--amber);font-family:'Cinzel',serif;letter-spacing:.05em}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--gold);border:1px solid var(--gold);border-radius:var(--radius);overflow:hidden;margin:28px 0}
+.sc{background:var(--panel);padding:13px 6px;text-align:center}
+.sv{display:block;font-family:'Cinzel',serif;font-size:1.55rem;color:var(--amber);line-height:1}
+.sl2{display:block;font-size:.63rem;color:var(--muted);margin-top:3px;letter-spacing:.04em;line-height:1.4}
+@media(max-width:540px){.stats{grid-template-columns:repeat(3,1fr)}}
+.nav{position:sticky;top:0;z-index:200;background:#090916;border-bottom:1px solid rgba(200,150,30,.3);overflow-x:auto;white-space:nowrap}
+.nav ul{display:inline-flex;list-style:none;padding:0 12px}
+.nav a{display:block;padding:11px 11px;font-family:'Cinzel',serif;font-size:.67rem;color:var(--muted);border-bottom:2px solid transparent;letter-spacing:.05em;transition:color .2s,border-color .2s}
+.nav a:hover,.nav a.active{color:var(--amber);border-color:var(--amber);text-decoration:none}
+.page{max-width:var(--max);margin:0 auto;padding:0 18px 80px}
+section{padding-top:48px}
+.st{font-family:'Cinzel',serif;font-size:1.2rem;color:var(--gold);border-bottom:1px solid rgba(200,150,30,.3);padding-bottom:8px;margin-bottom:20px;display:flex;align-items:baseline;gap:10px}
+.st span{font-size:.77rem;color:var(--dim);font-family:'EB Garamond',serif}
+h3{font-size:.94rem;color:var(--amber);margin:20px 0 8px;letter-spacing:.04em}
+.cb{background:var(--panel);border-left:3px solid var(--amber);border-radius:0 var(--radius) var(--radius) 0;padding:12px 16px;margin:12px 0;font-size:.89rem}
+.cb.r{border-color:var(--ml)}.cb.b{border-color:var(--dl)}.cb.p{border-color:var(--wl)}.cb.g{border-color:var(--sl)}
+.domains{display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:10px;margin:16px 0}
+.dc{background:var(--panel);border:1px solid rgba(200,150,30,.25);border-radius:var(--radius);padding:14px 12px;transition:border-color .2s}
+.dc:hover{border-color:var(--gold)}
+.di{font-size:1.45rem;margin-bottom:6px}.dn{font-family:'Cinzel',serif;font-size:.77rem;color:var(--gold);letter-spacing:.04em;margin-bottom:3px}
+.da{font-size:.73rem;color:var(--amber);font-style:italic;margin-bottom:5px}.dd{font-size:.78rem;color:var(--muted);line-height:1.45}
+.rg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+.rp{background:var(--panel);border-radius:var(--radius);padding:13px;text-align:center;border:1px solid rgba(200,150,30,.2)}
+.ri2{font-size:1.4rem}.rn{font-family:'Cinzel',serif;font-size:.81rem;color:var(--gold);margin:4px 0 2px}.rd{font-size:.79rem;color:var(--muted);line-height:1.4}
+@media(max-width:480px){.rg{grid-template-columns:1fr}}
+.ar{display:flex;gap:11px;background:var(--panel);border:1px solid rgba(200,150,30,.18);border-radius:var(--radius);padding:12px;margin-bottom:7px}
+.ai{font-size:1.15rem;min-width:25px;text-align:center;padding-top:2px}
+.ah{font-family:'Cinzel',serif;font-size:.79rem;color:var(--amber);margin-bottom:3px;letter-spacing:.03em}
+.ab{font-size:.83rem;color:var(--muted);line-height:1.5}
+.af{border-color:var(--wl)}.af .ah{color:#bf9de0}
+.steps{margin:14px 0}
+.step{display:flex;gap:13px;margin-bottom:9px;align-items:flex-start}
+.sn{min-width:27px;height:27px;background:var(--gold);color:#000;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-weight:700;font-size:.77rem;flex-shrink:0;margin-top:2px}
+.sh{font-family:'Cinzel',serif;font-size:.84rem;color:var(--parch);margin-bottom:2px}.sb{font-size:.82rem;color:var(--muted);line-height:1.5}
+.tw{overflow-x:auto;margin:12px 0}
+table{width:100%;border-collapse:collapse;font-size:.83rem}
+th{background:var(--ink3);color:var(--gold);font-family:'Cinzel',serif;font-weight:600;text-align:left;padding:8px 10px;border:1px solid rgba(200,150,30,.2);font-size:.73rem;letter-spacing:.04em}
+td{padding:7px 10px;border:1px solid rgba(200,150,30,.1);color:var(--parch);vertical-align:top;line-height:1.45}
+tr:nth-child(even) td{background:rgba(30,30,56,.6)}
+.tab-bar{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px}
+.tb{border:1px solid rgba(200,150,30,.25);background:var(--panel);color:var(--muted);font-family:'Cinzel',serif;font-size:.69rem;letter-spacing:.05em;padding:5px 12px;border-radius:20px;cursor:pointer;transition:all .2s}
+.tb:hover{color:var(--amber);border-color:var(--amber)}
+.tb.active{background:var(--gold);color:#000;border-color:var(--gold)}
+.tb[data-t="spirit"].active{background:var(--sl);border-color:var(--sl);color:#fff}
+.tb[data-t="demigod"].active{background:var(--dl);border-color:var(--dl);color:#fff}
+.tb[data-t="monster"].active{background:var(--ml);border-color:var(--ml);color:#fff}
+.tb[data-t="weapon"].active{background:var(--wl);border-color:var(--wl);color:#fff}
+.cg{display:grid;grid-template-columns:repeat(auto-fill,minmax(248px,1fr));gap:10px;margin:8px 0}
+.cc{background:var(--panel);border:1px solid rgba(200,150,30,.18);border-radius:var(--radius);padding:12px;display:flex;flex-direction:column;gap:4px;transition:border-color .2s,transform .15s}
+.cc:hover{border-color:rgba(200,150,30,.5);transform:translateY(-2px)}
+.cc[data-t="spirit"]{border-top:2px solid var(--sl)}
+.cc[data-t="demigod"]{border-top:2px solid var(--dl)}
+.cc[data-t="god"]{border-top:2px solid var(--gl)}
+.cc[data-t="monster"]{border-top:2px solid var(--ml)}
+.cc[data-t="weapon"]{border-top:2px solid var(--wl)}
+.ch{display:flex;justify-content:space-between;align-items:flex-start;gap:6px}
+.cn{font-family:'Cinzel',serif;font-size:.85rem;color:var(--parch);line-height:1.25}
+.cbg{font-size:.59rem;letter-spacing:.05em;padding:2px 7px;border-radius:10px;white-space:nowrap;flex-shrink:0;font-family:'Cinzel',serif}
+.bs{background:rgba(45,110,78,.4);color:#5fbd8a;border:1px solid var(--sl)}
+.bd{background:rgba(30,74,138,.4);color:#7ab4ff;border:1px solid var(--dl)}
+.bg2{background:rgba(122,58,0,.5);color:var(--amber);border:1px solid var(--gl)}
+.bm{background:rgba(110,26,26,.5);color:#ff7070;border:1px solid var(--ml)}
+.bw{background:rgba(74,26,110,.5);color:#d3a0ff;border:1px solid var(--wl)}
+.cc-cost{display:flex;flex-wrap:wrap;gap:3px;margin-top:2px}
+.cp{font-size:.67rem;padding:2px 7px;border-radius:10px;font-family:'Cinzel',serif}
+.ca{background:rgba(200,150,30,.2);color:var(--amber);border:1px solid rgba(200,150,30,.4)}
+.cn2{background:rgba(58,120,212,.2);color:#7ab4ff;border:1px solid rgba(58,120,212,.4)}
+.ci{background:rgba(192,57,43,.2);color:#ff8080;border:1px solid rgba(192,57,43,.4)}
+.unique-badge{font-size:.59rem;color:#ffd700;font-family:'Cinzel',serif;letter-spacing:.04em;opacity:.8}
+.cf{font-size:.76rem;color:var(--dim);font-style:italic;line-height:1.4;border-left:2px solid rgba(200,150,30,.2);padding-left:7px;margin:3px 0}
+.cs2{font-size:.69rem;font-family:'Cinzel',serif;letter-spacing:.04em;color:var(--gold);margin-top:4px;margin-bottom:1px;opacity:.75}
+.cx{font-size:.78rem;color:var(--muted);line-height:1.45}
+.cpp{font-size:.74rem;color:var(--amber);font-style:italic;margin-top:auto;padding-top:4px;border-top:1px solid rgba(200,150,30,.15)}
+.bg3{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}
+.bc{background:var(--panel);border:1px solid rgba(192,57,43,.3);border-radius:var(--radius);padding:13px}
+.bc h4{font-family:'Cinzel',serif;font-size:.79rem;color:#ff8080;margin-bottom:5px;letter-spacing:.03em}
+.bc p{font-size:.81rem;color:var(--muted);margin-bottom:4px}
+@media(max-width:520px){.bg3{grid-template-columns:1fr}}
+.ss{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;margin:14px 0}
+.ssc{background:var(--panel);border-radius:var(--radius);padding:11px;border:1px solid rgba(200,150,30,.15);text-align:center}
+.ssi{font-size:1.2rem;margin-bottom:3px}.ssn{font-family:'Cinzel',serif;font-size:.75rem;color:var(--gold);margin-bottom:2px}.ssd{font-size:.76rem;color:var(--muted);line-height:1.4}
+.qr{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid rgba(200,150,30,.3);border-radius:var(--radius);overflow:hidden;margin:14px 0}
+.qrc{background:var(--panel);padding:15px;font-size:.81rem}
+.qrc:first-child{border-right:1px solid rgba(200,150,30,.3)}
+.qrc h4{font-family:'Cinzel',serif;font-size:.73rem;color:var(--gold);letter-spacing:.05em;margin-bottom:7px}
+.qrc ul{margin-left:13px;list-style:disc}.qrc li{color:var(--muted);margin-bottom:3px}.qrc li::marker{color:var(--gold)}
+@media(max-width:500px){.qr{grid-template-columns:1fr}.qrc:first-child{border-right:none;border-bottom:1px solid rgba(200,150,30,.3)}}
+ul.rl{margin:8px 0 10px 18px}ul.rl li{margin-bottom:5px;font-size:.89rem}ul.rl li::marker{color:var(--gold)}
+footer{margin-top:60px;border-top:1px solid rgba(200,150,30,.15);padding:24px 20px;text-align:center;font-size:.77rem;color:var(--dim)}
+.sb2{width:100%;background:var(--panel);border:1px solid rgba(200,150,30,.3);border-radius:var(--radius);padding:8px 14px;color:var(--parch);font-family:'EB Garamond',serif;font-size:.9rem;margin-bottom:13px;outline:none}
+.sb2:focus{border-color:var(--gold)}.sb2::placeholder{color:var(--dim)}
+.pt{display:inline-block;background:rgba(200,150,30,.15);color:var(--amber);border:1px solid rgba(200,150,30,.3);border-radius:4px;padding:1px 7px;font-size:.7rem;font-family:'Cinzel',serif}
+.rule-block{background:var(--panel);border:1px solid rgba(200,150,30,.2);border-radius:var(--radius);padding:14px 16px;margin:10px 0}
+.rule-block h4{font-family:'Cinzel',serif;font-size:.82rem;color:var(--amber);margin-bottom:6px;letter-spacing:.04em}
+.rule-block p,.rule-block li{font-size:.85rem;color:var(--muted);line-height:1.55;margin-bottom:4px}
+.rule-block ul{margin-left:16px}
+.rule-block li::marker{color:var(--gold)}
+</style>
 </head>
 <body>
 
-<!-- ── HERO ──────────────────────────────────────────────────────────────── -->
 <header class="hero">
+  <div class="eyebrow">Griffin Games &nbsp;·&nbsp; Rulebook v4.0</div>
   <h1>AGON</h1>
-  <div style="color:var(--muted);font-size:1.05rem;margin-top:4px;letter-spacing:0.1em;">THE ARCHAIC AGE</div>
-  <div class="sub">Griffin Games &nbsp;·&nbsp; 2–4 Players &nbsp;·&nbsp; 40–55 Min &nbsp;·&nbsp; Engine Builder</div>
-  <div class="tag">Rulebook v2.0 &nbsp;·&nbsp; Themes: Journeys · Festivals · Traditions</div>
+  <div style="font-family:'Cinzel Decorative',serif;font-size:clamp(.85rem,2vw,1rem);color:var(--muted);letter-spacing:.18em;margin-top:8px">THE ARCHAIC AGE</div>
+  <div class="hero-sub" style="margin-top:14px">2–6 Players &nbsp;·&nbsp; 45–60 Min &nbsp;·&nbsp; Engine Builder · Battle · Mythology</div>
+  <div class="hero-tags">
+    <span class="htag">5 Domains</span>
+    <span class="htag">60 Unique Card Types</span>
+    <span class="htag">Gods &amp; Demi-Gods: 1 Copy Each</span>
+    <span class="htag">10+ PP Sources</span>
+    <span class="htag">Battle System</span>
+  </div>
 </header>
 
-<!-- ── NAV ───────────────────────────────────────────────────────────────── -->
-<nav class="nav">
-  <ul>
-    <li><a href="#overview">Overview</a></li>
-    <li><a href="#turn">Your Turn</a></li>
-    <li><a href="#rounds">Rounds</a></li>
-    <li><a href="#spirits">Spirit Cards</a></li>
-    <li><a href="#gods">God Cards</a></li>
-    <li><a href="#quests">Quests</a></li>
-    <li><a href="#goals">Round Goals</a></li>
-    <li><a href="#scoring">Scoring</a></li>
-    <li><a href="#setup">Setup</a></li>
-    <li><a href="#components">Components</a></li>
-    <li><a href="#ref">Quick Ref</a></li>
-  </ul>
-</nav>
+<nav class="nav"><ul>
+  <li><a href="#overview">Overview</a></li>
+  <li><a href="#resources">Resources</a></li>
+  <li><a href="#domains">Domains</a></li>
+  <li><a href="#turn">Your Turn</a></li>
+  <li><a href="#weapons">Weapons</a></li>
+  <li><a href="#battle">Battle</a></li>
+  <li><a href="#monsters">Monsters</a></li>
+  <li><a href="#rounds">Rounds</a></li>
+  <li><a href="#safety">Safety Rules</a></li>
+  <li><a href="#cards">All Cards</a></li>
+  <li><a href="#quests">Quests</a></li>
+  <li><a href="#goals">Round Goals</a></li>
+  <li><a href="#scoring">Scoring</a></li>
+  <li><a href="#setup">Setup</a></li>
+  <li><a href="#components">Components</a></li>
+  <li><a href="#ref">Quick Ref</a></li>
+</ul></nav>
 
 <main class="page">
 
-<!-- ── OVERVIEW ──────────────────────────────────────────────────────────── -->
+<!-- OVERVIEW -->
+
 <section id="overview">
-  <h2 class="section-title">Overview</h2>
-  <p>
-    Agon: The Archaic Age is a competitive engine-building game set in ancient Greece.
-    Players travel through three sacred domains — recruiting Shades of fallen heroes,
-    calling upon gods, and offering resources to earn <strong>Patron Points</strong>.
-    After 6 rounds of rivalry and strategy, the player with the most Patron Points wins.
-  </p>
-
+  <h2 class="st">Overview</h2>
+  <p>Agon: The Archaic Age is a competitive engine-building and battle game set in mythological Greece. Players summon Spirits, recruit Demi-Gods, call upon the Olympian gods, unleash Monsters against rivals, and forge legendary Weapons — all competing for <strong>Patron Points</strong>.</p>
+  <p>Every God, Demi-God, and Monster card exists as a single copy in the game. Once claimed, it is locked in that player's engine. This creates true draft tension — there is only one Achilles, one Zeus, one Typhon.</p>
   <div class="stats">
-    <div class="stat"><span class="val">6</span><span class="lbl">Rounds</span></div>
-    <div class="stat"><span class="val">1<sup style="font-size:.6em">*</sup></span><span class="lbl">Action / Turn</span></div>
-    <div class="stat"><span class="val">3</span><span class="lbl">Resource Types</span></div>
-    <div class="stat"><span class="val">4</span><span class="lbl">Ways to Earn PP</span></div>
+    <div class="sc"><span class="sv">6</span><span class="sl2">Rounds (2–4P)</span></div>
+    <div class="sc"><span class="sv">5</span><span class="sl2">Rounds (5–6P)</span></div>
+    <div class="sc"><span class="sv">2</span><span class="sl2">Actions / Turn</span></div>
+    <div class="sc"><span class="sv">5</span><span class="sl2">Sacred Domains</span></div>
+    <div class="sc"><span class="sv">10+</span><span class="sl2">Ways to Earn PP</span></div>
   </div>
-  <p style="font-size:0.8rem;color:var(--muted);margin-top:-8px;margin-bottom:16px;">
-    * Engine production fires automatically at round start — free, not an action.
-  </p>
+  <p style="font-size:.77rem;color:var(--dim);margin-top:-6px">Engine fires automatically at round start — free, not an action. Quest completion, Emergency Discard, and monster removal are free actions.</p>
 
-  <h3>The Three Domains</h3>
-  <div class="loop">
-    <div class="domain">
-      <div class="icon">⚫</div>
-      <div class="name">Hades' Domain</div>
-      <div class="desc">Acquire cards. Pay ambrosia to add spirit or god cards to your hand, then play them to your engine.</div>
-    </div>
-    <div class="arrow">→</div>
-    <div class="domain">
-      <div class="icon">⚡</div>
-      <div class="name">Zeus' Domain</div>
-      <div class="desc">Gain resources. Collect ambrosia or nectar. Your engine boosts this every round automatically.</div>
-    </div>
-    <div class="arrow">→</div>
-    <div class="domain">
-      <div class="icon">🔱</div>
-      <div class="name">Poseidon's Domain</div>
-      <div class="desc">Score points. Spend resources here to convert them into Patron Points. Engine cards boost your rate.</div>
-    </div>
-  </div>
-
-  <div class="callout gold">
-    <strong>The engine-building moment:</strong> At the start of every round, all cards in your play area automatically produce their resources — before you even take a turn. The more cards you've built, the more you generate for free.
-  </div>
-
-  <h3>Resources</h3>
-  <div class="tbl-wrap">
-    <table>
-      <thead><tr><th>Resource</th><th>Symbol</th><th>Description</th></tr></thead>
-      <tbody>
-        <tr><td><strong>Ambrosia</strong></td><td>🟡 Yellow</td><td>Common currency. Acquire cards, activate effects, score PP. Easy to generate from Zeus or engine cards.</td></tr>
-        <tr><td><strong>Nectar</strong></td><td>🔵 Blue</td><td>Premium resource. Worth more at Poseidon's domain. Mainly from god cards and special spirits.</td></tr>
-        <tr><td><strong>Patron Points</strong></td><td>⭐ Star</td><td>Victory points. Earned at Poseidon's domain, from round goals, quest cards, and card end-game values.</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <h3>Themes</h3>
-  <ul class="rules">
-    <li><strong>Journeys</strong> — Shades of sailors, pilgrims, and wanderers of the ancient world.</li>
-    <li><strong>Festivals</strong> — Shades of athletes, dancers, and revelers who celebrated the divine.</li>
-    <li><strong>Traditions</strong> — Shades of elders, keepers, and oracles who preserved sacred knowledge.</li>
-  </ul>
+  <h3>Card Rarity — Unique vs Standard</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Card Type</th><th>Copies in Deck</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Spirit cards</strong></td><td>4 copies each (80 total)</td><td>Common — multiple players can hold the same spirit</td></tr>
+      <tr><td><strong>Weapon cards</strong></td><td>2 copies each (16 total)</td><td>Limited — two players can each wield the same weapon</td></tr>
+      <tr><td><strong>Demi-God cards</strong></td><td><strong>1 copy each (8 total)</strong></td><td>Unique — once claimed, no one else can have this hero</td></tr>
+      <tr><td><strong>God cards</strong></td><td><strong>1 copy each (12 total)</strong></td><td>Unique — once in someone's engine, locked there for the game</td></tr>
+      <tr><td><strong>Monster cards</strong></td><td><strong>1 copy each (12 total)</strong></td><td>Unique — consumed when used; gone from the game permanently</td></tr>
+    </tbody>
+  </table></div>
 </section>
 
-<!-- ── YOUR TURN ──────────────────────────────────────────────────────────── -->
+<!-- RESOURCES -->
+
+<section id="resources">
+  <h2 class="st">Resources</h2>
+  <div class="rg">
+    <div class="rp"><div class="ri2">🟡</div><div class="rn">Ambrosia</div><div class="rd">Common currency. Acquire cards, pay costs, convert to PP at Oracle's Fire. Rate: <strong>2 Ambrosia = 1 PP</strong>.</div></div>
+    <div class="rp"><div class="ri2">🔵</div><div class="rn">Nectar</div><div class="rd">Premium resource. Worth more at Oracle's Fire. Mainly from God cards and sea-domain Spirits. Rate: <strong>1 Nectar = 2 PP</strong>.</div></div>
+    <div class="rp"><div class="ri2">🔴</div><div class="rn">Ichor</div><div class="rd">Divine blood. Rare. Deploy monsters, summon gods, forge weapons, activate divine powers. Rate: <strong>1 Ichor = 3 PP</strong>.</div></div>
+  </div>
+  <div class="cb"><strong>Ichor note:</strong> You begin with 0 Ichor. It comes only from God card passives, Demi-God abilities (Bellerophon, Achilles), Phoenix (odd rounds), and Aether Spirit. Budget it — it gates the most powerful actions in the game.</div>
+</section>
+
+<!-- DOMAINS -->
+
+<section id="domains">
+  <h2 class="st">The Five Sacred Domains</h2>
+  <p>Each turn you take <strong>2 actions</strong>, freely chosen from these five. You may visit the same domain twice.</p>
+  <div class="domains">
+    <div class="dc"><div class="di">🌑</div><div class="dn">Hades' Eternal Dark</div><div class="da">"Descend with Charon"</div><div class="dd">Acquire any face-up card from the market by paying its cost.<br><br><strong>Market shows:</strong> 4 Spirits · 2 Demi-Gods · 2 Monsters · 1 Weapon<br><br>Gods are summoned from a face-down deck: pay their Ichor cost, reveal top 2, keep 1, return 1 to bottom.<br><br>Once Demi-God or Monster decks empty, those market slots stay empty permanently.<br><br><em>Blocked by Cerberus deploy.</em></div></div>
+    <div class="dc"><div class="di">⚡</div><div class="dn">Zeus' Eternal Throne</div><div class="da">"Receive Divine Favour"</div><div class="dd">Gain <strong>2 Ambrosia OR 1 Nectar OR 1 Ichor</strong>.<br><br>Each ⚡ card in your engine adds +1 Ambrosia on top of your Ambrosia choice. Zeus card in engine: +1 extra of any chosen resource.<br><br><em>Zeus' passive reduces all other players' Ambrosia gain here by 1 (min 1 total gain).</em></div></div>
+    <div class="dc"><div class="di">🔥</div><div class="dn">Apollo's Oracle Fire</div><div class="da">"Consult the Oracle"</div><div class="dd">Convert resources into Patron Points.<br><strong>2 Amb → 1 PP · 1 Nec → 2 PP · 1 Ich → 3 PP</strong><br><br>Each 🔱 card in engine: +1 PP per visit. Gain 1 Omen Token per visit.<br><br>Spend any amount in one visit. Multiple resource types may be combined.<br><br><em>Blocked by Sphinx deploy.</em></div></div>
+    <div class="dc"><div class="di">🔨</div><div class="dn">Hephaestus' Divine Forge</div><div class="da">"Commission the Smith"</div><div class="dd">Pay a Weapon card's cost to acquire it from the Forge market.<br><br><strong>Forge always shows 3 Weapons.</strong> Refills instantly when a card is taken.<br><br>If the Weapon deck empties: Forge visits grant 1 Ambrosia instead.<br><br>When you acquire a weapon: choose to equip it (engine) or keep it in hand.</div></div>
+    <div class="dc"><div class="di">⚔️</div><div class="dn">Ares' Blood Colosseum</div><div class="da">"Enter the Fray"</div><div class="dd">Choose one of three actions:<br><strong>a) Deploy Monster:</strong> Spend 1 Ichor (2 for Typhon), place a Monster from hand face-up before any opponent.<br><strong>b) Challenge Battle:</strong> Declare a target and initiate a weapon battle (see Battle section).<br><strong>c) Activate Weapon:</strong> Trigger any weapon's activated ability.<br><br><em>Aphrodite's passive protects 1 opponent per round from being targeted here.</em></div></div>
+  </div>
+</section>
+
+<!-- TURN -->
+
 <section id="turn">
-  <h2 class="section-title">Your Turn</h2>
-  <p>On your turn, take <strong>exactly 1 action</strong>. The engine fires at round start before anyone acts — your cards are already working for you.</p>
-
-  <div class="action-list">
-    <div class="action-item">
-      <div class="icon-col">⚫</div>
-      <div class="text-col">
-        <div class="head">Visit Hades' Domain — Acquire a Card</div>
-        <div class="body">Pay the ambrosia (or nectar) cost shown on any face-up card in the market. Add it to your hand. The market immediately refills from the deck.<br><br>Market always has: <strong>5 spirit cards + 2 god cards</strong> face-up.</div>
-      </div>
-    </div>
-    <div class="action-item">
-      <div class="icon-col">⚡</div>
-      <div class="text-col">
-        <div class="head">Visit Zeus' Domain — Gain Resources</div>
-        <div class="body">Gain <strong>2 ambrosia OR 1 nectar</strong> (your choice). For each card in your engine with a Zeus symbol (⚡), gain +1 extra ambrosia on top.<br><br>Always available — no prerequisites. You can always do something.</div>
-      </div>
-    </div>
-    <div class="action-item">
-      <div class="icon-col">▶</div>
-      <div class="text-col">
-        <div class="head">Play a Card — Build Your Engine</div>
-        <div class="body">Move a card from your hand to your play area (engine). Trigger its <em>On Play</em> effect immediately. From the next round onward, it produces resources automatically at round start.<br><br>No cost to play — the cost was paid when acquiring at Hades' domain.</div>
-      </div>
-    </div>
-    <div class="action-item">
-      <div class="icon-col">🔱</div>
-      <div class="text-col">
-        <div class="head">Visit Poseidon's Domain — Score Patron Points</div>
-        <div class="body">Spend resources to earn PP. Base rates: <strong>3 ambrosia → 1 PP</strong>, or <strong>1 nectar → 2 PP</strong>. Each Poseidon card (🔱) in your engine gives +1 PP per visit.<br><br>You may spend as much as you want in one visit.</div>
-      </div>
-    </div>
-  </div>
-
-  <h3>Free Actions — No Action Cost</h3>
-  <p>These can be used at any point during your turn without spending your 1 action.</p>
-  <div class="action-list">
-    <div class="action-item free">
-      <div class="icon-col">📜</div>
-      <div class="text-col">
-        <div class="head">Complete a Quest</div>
-        <div class="body">Reveal a quest card from your hand if its condition is currently met. Gain the PP shown and place it face-up in your score pile. Each player may complete up to <strong>2 quests</strong> per game.</div>
-      </div>
-    </div>
-    <div class="action-item free">
-      <div class="icon-col">✕</div>
-      <div class="text-col">
-        <div class="head">Emergency Discard</div>
-        <div class="body">Discard any 1 card from your hand → gain 1 ambrosia immediately. Anti-deadlock safety valve. If you ever feel stuck, this always gets you moving.</div>
-      </div>
-    </div>
-  </div>
+  <h2 class="st">Your Turn</h2>
+  <p>Take exactly <strong>2 actions</strong> per turn. Same domain may be visited twice. Engine fires automatically before your first action.</p>
+  <div class="ar" style="margin-top:14px"><div class="ai">🌑</div><div><div class="ah">Hades — Acquire a Card</div><div class="ab">Pay the printed cost. Add card to your hand. Market refills immediately from its deck. Gods: pay Ichor cost, reveal top 2, choose 1.</div></div></div>
+  <div class="ar"><div class="ai">⚡</div><div><div class="ah">Olympus — Gain Resources</div><div class="ab">2 Ambrosia OR 1 Nectar OR 1 Ichor. Add engine ⚡ bonuses on top of Ambrosia choice.</div></div></div>
+  <div class="ar"><div class="ai">▶</div><div><div class="ah">Play a Card — Build Your Engine</div><div class="ab">Move any card from hand to your engine. Trigger its On Play effect immediately. From next round, it produces automatically. No extra cost.</div></div></div>
+  <div class="ar"><div class="ai">🔥</div><div><div class="ah">Oracle's Fire — Score Patron Points</div><div class="ab">2 Amb = 1 PP · 1 Nec = 2 PP · 1 Ich = 3 PP. 🔱 engine cards add +1 PP per visit. Gain 1 Omen Token. Combine resource types freely.</div></div></div>
+  <div class="ar"><div class="ai">🔨</div><div><div class="ah">Forge — Acquire a Weapon</div><div class="ab">Pay cost, take from Forge market. Choose to equip immediately (engine) or hold in hand for activation later. You decide when you acquire it.</div></div></div>
+  <div class="ar"><div class="ai">⚔️</div><div><div class="ah">Colosseum — Battle / Deploy / Activate</div><div class="ab">Deploy a monster (Ichor), challenge a battle (no Ambrosia cost), or activate a weapon. See Battle and Monster sections.</div></div></div>
+  <h3>Free Actions — Anytime During Your Turn, No Action Spent</h3>
+  <div class="ar af"><div class="ai">📜</div><div><div class="ah">Complete a Quest</div><div class="ab">Reveal a quest from hand when its condition is met. Gain listed PP. Limit: 2 completed quests per player total.</div></div></div>
+  <div class="ar af"><div class="ai">✕</div><div><div class="ah">Emergency Discard</div><div class="ab">Discard 1 card from hand → gain 1 Ambrosia. Cannot be used if you have 0 cards in hand. Phoenix ignores this and returns to hand instead.</div></div></div>
+  <div class="ar af"><div class="ai">🛡</div><div><div class="ah">Monster Removal</div><div class="ab">Pay the removal cost on a monster afflicting you. You then claim it as a trophy (its PP value at game end).</div></div></div>
 </section>
 
-<!-- ── ROUND STRUCTURE ────────────────────────────────────────────────────── -->
+<!-- WEAPONS -->
+
+<section id="weapons">
+  <h2 class="st">Weapon Rules</h2>
+  <div class="rule-block">
+    <h4>Two States: Equipped vs. In Hand</h4>
+    <ul>
+      <li><strong>In Hand:</strong> The weapon is held but not producing. It can be played in battles (as your secret weapon card) and returned to hand after.</li>
+      <li><strong>Equipped (in engine):</strong> Placed in your engine using a Play Card action. Provides its passive bonus every round. Can also be played in battles.</li>
+    </ul>
+  </div>
+  <div class="rule-block">
+    <h4>Using a Weapon in Battle</h4>
+    <ul>
+      <li>Both players secretly select 0 or 1 weapon card from either their hand or engine. Reveal simultaneously.</li>
+      <li>Add the weapon's combat bonus to your base damage.</li>
+      <li>After battle: equipped weapons return to engine unchanged. Hand weapons return to hand unchanged.</li>
+      <li>Only Activated effects require the weapon to be discarded.</li>
+    </ul>
+  </div>
+  <div class="rule-block">
+    <h4>Activating a Weapon</h4>
+    <ul>
+      <li>Activating costs 1 Colosseum action.</li>
+      <li>A weapon can be activated from hand OR from your engine.</li>
+      <li>After activation: the weapon is discarded permanently regardless of where it was.</li>
+      <li>You cannot activate a weapon that you used in a battle this same turn.</li>
+    </ul>
+  </div>
+  <div class="cb p"><strong>Auto-Win Conflict:</strong> If both players play a weapon with an auto-win effect simultaneously (e.g. both play Spear of Ares), treat the battle as a tie — both players lose 1 Ambrosia to the supply. Neither weapon is discarded.</div>
+</section>
+
+<!-- BATTLE -->
+
+<section id="battle">
+  <h2 class="st">Battle System</h2>
+  <p>Visit <strong>Ares' Blood Colosseum</strong> to challenge opponents. Initiating a battle is <strong>free</strong> — no Ambrosia cost. The Colosseum action itself is the cost.</p>
+  <div class="bg3">
+    <div class="bc">
+      <h4>⚔️ How to Battle</h4>
+      <p>1. Declare a target opponent. Both know a battle is happening.</p>
+      <p>2. Both secretly choose 0 or 1 weapon card from hand or engine. Reveal simultaneously.</p>
+      <p>3. Calculate damage: <strong>Attacker base = 2. Defender base = 1.</strong> Add each weapon's combat bonus to the respective side.</p>
+      <p>4. Highest total wins. Tie: both lose 1 Ambrosia to supply.</p>
+    </div>
+    <div class="bc">
+      <h4>🏆 Outcomes</h4>
+      <p><strong>Attacker wins:</strong> Steal 2 Ambrosia from defender. Gain 1 PP. Gain 1 Glory.</p>
+      <p><strong>Defender wins:</strong> Defender gains 1 PP. Attacker loses 1 Ambrosia to supply.</p>
+      <p><strong>Tie:</strong> Both lose 1 Ambrosia to supply. No PP awarded.</p>
+      <p>Note: God cards and Demi-Gods cannot be targeted or stolen. Only resources and engine effects can be affected by battle outcomes.</p>
+    </div>
+  </div>
+  <h3>Glory Track</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Glory</th><th>Bonus PP at Game End</th><th>How to Earn Glory</th></tr></thead>
+    <tbody>
+      <tr><td>0–2</td><td>0 PP</td><td>+1 per battle won · +1 per quest completed</td></tr>
+      <tr><td>3–4</td><td>+2 PP</td><td>+1 per monster you deploy that lasts at least 2 full rounds</td></tr>
+      <tr><td>5–6</td><td>+4 PP</td><td>Heracles / Atalanta / Ares engine bonuses add +1 extra Glory per trigger</td></tr>
+      <tr><td>7+</td><td>+6 PP</td><td>Dionysus' Divine Madness or Zeus' Storm's Wrath each award +2 Glory on use</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- MONSTERS -->
+
+<section id="monsters">
+  <h2 class="st">Monster Rules</h2>
+  <p>Monsters are unique cards — <strong>1 copy each</strong>. Once deployed or used, they are consumed and gone from the game.</p>
+  <div class="rule-block">
+    <h4>Deploying a Monster (Colosseum action)</h4>
+    <ul>
+      <li>Spend 1 Ichor (or 2 for Typhon). Place the Monster card face-up in front of your target opponent.</li>
+      <li>The monster's <strong>Deploy Effect</strong> triggers at the start of each of the target's turns for the stated duration.</li>
+      <li>A player may have at most <strong>2 monsters deployed on them simultaneously</strong>. If a 3rd is deployed, the deploying player must choose one of the existing 2 to remove first (it expires — discarded, no trophy).</li>
+      <li>If two monsters have the same effect type (e.g. two "cannot visit Hades" effects), only the longer remaining duration applies — effects do not stack.</li>
+    </ul>
+  </div>
+  <div class="rule-block">
+    <h4>Monster Removal (Free Action)</h4>
+    <ul>
+      <li>The afflicted player may pay the Removal Cost listed on the monster during their turn as a Free Action.</li>
+      <li>When removed this way: the target <strong>claims the monster as a trophy</strong> (its PP value counts at game end).</li>
+      <li>Hero auto-removals (Heracles, Theseus, Perseus, Orpheus) also award the trophy to the target player.</li>
+    </ul>
+  </div>
+  <div class="rule-block">
+    <h4>Natural Expiry</h4>
+    <ul>
+      <li>If a monster's duration expires without the target paying to remove it, the monster is <strong>discarded permanently</strong>. No trophy is awarded. The card is out of the game.</li>
+    </ul>
+  </div>
+  <div class="rule-block">
+    <h4>Instant Use (No Ichor Cost)</h4>
+    <ul>
+      <li>Instead of deploying, you may play a Monster card from your hand as your Colosseum action for its <strong>Instant Use</strong> effect. No Ichor required.</li>
+      <li>Instant Use effects cannot be countered or removed — they fire immediately and the card is discarded.</li>
+    </ul>
+  </div>
+  <div class="cb r"><strong>Monster deck depletion:</strong> When the Monster deck empties, the 2 Monster slots in Hades' market remain empty permanently. No new monsters can be acquired. Monsters already in play or in hands continue to function normally.</div>
+</section>
+
+<!-- ROUND STRUCTURE -->
+
 <section id="rounds">
-  <h2 class="section-title">Round Structure</h2>
-  <p>6 rounds. Each round follows the same sequence.</p>
+  <h2 class="st">Round Structure</h2>
+  <div class="cb" style="margin-bottom:14px"><strong>2–4 players: 6 rounds &nbsp;·&nbsp; 5–6 players: 5 rounds</strong></div>
+  <div class="steps">
+    <div class="step"><div class="sn">1</div><div><div class="sh">Engines Fire (Simultaneous, Free)</div><div class="sb">All players collect resources from every card in their engine simultaneously. This happens automatically before any player takes a turn.</div></div></div>
+    <div class="step"><div class="sn">2</div><div><div class="sh">Monster Afflictions Trigger</div><div class="sb">All deployed monster effects fire for their targets. Each target may attempt removal (Free Action) before their own turn begins. Reduce each monster's duration counter by 1 — if it reaches 0, discard it (no trophy).</div></div></div>
+    <div class="step"><div class="sn">3</div><div><div class="sh">Goal Reveal</div><div class="sb">Flip the top round goal card face-up. All players can now see the shared competition target for this round.</div></div></div>
+    <div class="step"><div class="sn">4</div><div><div class="sh">Player Turns (Clockwise)</div><div class="sb">Each player takes 2 actions. Free actions may be used at any point during your own turn, not during others' turns.</div></div></div>
+    <div class="step"><div class="sn">5</div><div><div class="sh">Score the Round Goal</div><div class="sb">The qualifying player earns the stated PP. On a tie, apply the tie rule printed on that goal card. Discard the goal card face-up.</div></div></div>
+    <div class="step"><div class="sn">6</div><div><div class="sh">Pass First Player Marker</div><div class="sb">Marker moves clockwise. Omen Tokens and Glory Track positions carry over to the next round.</div></div></div>
+  </div>
+  <div class="cb">After the final round: total all PP from every source. Most PP wins. See Scoring for full breakdown and tiebreakers.</div>
+</section>
 
-  <div class="round-steps">
-    <div class="step">
-      <div class="num">1</div>
-      <div class="content">
-        <div class="head">Round Start — Engines Fire</div>
-        <div class="body">All players simultaneously collect resources from their engines. Each card in your play area produces its listed resource. This happens before any player takes a turn — automatic and simultaneous.</div>
-      </div>
-    </div>
-    <div class="step">
-      <div class="num">2</div>
-      <div class="content">
-        <div class="head">Goal Reveal</div>
-        <div class="body">If not already visible, flip the top card of the round goal deck face-up. All players can see what they are competing for this round.</div>
-      </div>
-    </div>
-    <div class="step">
-      <div class="num">3</div>
-      <div class="content">
-        <div class="head">Player Turns (Clockwise)</div>
-        <div class="body">Starting with the first player, each player takes their <strong>1 action</strong>. Free actions (quest completion, emergency discard) may be used at any time during your turn. Play continues clockwise until all players have gone.</div>
-      </div>
-    </div>
-    <div class="step">
-      <div class="num">4</div>
-      <div class="content">
-        <div class="head">Round End — Score the Goal</div>
-        <div class="body">Check the current round goal card. The qualifying player(s) receive the stated Patron Points. Place the scored goal card face-up in the discard pile.</div>
-      </div>
-    </div>
-    <div class="step">
-      <div class="num">5</div>
-      <div class="content">
-        <div class="head">Pass First Player Marker</div>
-        <div class="body">The first player marker passes clockwise. Everyone gets to go first across the 6-round game — first access to the market matters.</div>
-      </div>
-    </div>
+<!-- SAFETY RULES -->
+
+<section id="safety">
+  <h2 class="st">Safety Rules — Preventing Deadlocks</h2>
+  <p>These rules prevent players from being completely locked out of meaningful play.</p>
+
+  <div class="rule-block">
+    <h4>Sanctuary Rule — Escaping Total Resource Lock</h4>
+    <p>If a player begins their turn with <strong>0 resources of every type AND 0 cards in hand</strong>, they may declare Sanctuary as a Free Action once per game: gain 2 Ambrosia from the supply immediately. This bypasses all monster afflictions for this single gain only.</p>
   </div>
 
-  <div class="callout gold">
-    <strong>After Round 6 — Final Scoring:</strong> Add all Patron Points from round goals + quest cards + PP values on god cards + PP values on spirit cards. Highest total wins. Tiebreaker: most resources remaining (ambrosia + nectar), then most god cards.
+  <div class="rule-block">
+    <h4>Monster Stack Limit</h4>
+    <p>No player may have more than <strong>2 monsters deployed on them simultaneously</strong>. If a deployer attempts to place a 3rd monster, they must first remove one of the existing two (that monster is discarded immediately — no trophy for anyone).</p>
+  </div>
+
+  <div class="rule-block">
+    <h4>Same-Type Monster Stacking</h4>
+    <p>Two monsters with the same type of restriction (e.g. two "cannot visit Hades" effects) do not stack their durations. Only the one with the longer remaining duration is active at any time.</p>
+  </div>
+
+  <div class="rule-block">
+    <h4>Weapon Deck Empty</h4>
+    <p>If the Weapon deck is exhausted, visiting Hephaestus' Forge grants 1 Ambrosia instead. Players with Hephaestus in their engine still receive his passive cost reduction (applied to future acquisitions if new cards enter somehow via Hermes or other effects).</p>
+  </div>
+
+  <div class="rule-block">
+    <h4>Demi-God and Monster Deck Empty</h4>
+    <p>When the Demi-God or Monster deck is fully acquired, those 2 market slots in Hades' domain remain empty. The other slots (Spirits, Weapons) still function and refill normally.</p>
+  </div>
+
+  <div class="rule-block">
+    <h4>Typhon Duration Expiry</h4>
+    <p>Typhon's 3-round duration is reduced each round even if the target cannot remove it. Typhon will always naturally expire after 3 rounds regardless of removal attempts. The target is never permanently locked by any single monster.</p>
   </div>
 </section>
 
-<!-- ── SPIRIT CARDS ───────────────────────────────────────────────────────── -->
-<section id="spirits">
-  <h2 class="section-title">Spirit Cards <span>10 unique types · 5 copies each · 50 total</span></h2>
-  <p>Shades of the fallen — cheap and stackable. Most produce 1 ambrosia per round. Build a foundation of spirits before reaching for gods. Cost: 1–2 ambrosia. Each worth 1 PP at game end unless noted.</p>
+<!-- ALL CARDS -->
 
-  <div class="card-grid">
-    <div class="card">
-      <div class="card-head">Shade of the Warrior</div>
-      <div class="card-cost">1 Ambrosia</div>
-      <div class="theme-tag">[Journey]</div>
-      <div class="card-effect">On Play: gain 1 ambrosia.<br>Each Round: +1 ambrosia.</div>
-      <div class="card-pp">Worth 1 PP at game end</div>
-    </div>
-    <div class="card">
-      <div class="card-head">Shade of the Athlete</div>
-      <div class="card-cost">1 Ambrosia</div>
-      <div class="theme-tag">[Festival]</div>
-      <div class="card-effect">Each Round: +1 ambrosia.<br>When you score at Poseidon's this round, pay 1 less ambrosia.</div>
-      <div class="card-pp">Worth 1 PP at game end</div>
-    </div>
-    <div class="card">
-      <div class="card-head">Shade of the Oracle</div>
-      <div class="card-cost">2 Ambrosia</div>
-      <div class="theme-tag">[Tradition]</div>
-      <div class="card-effect">On Play: peek at the next 2 round goal cards.<br>Every 2nd round: +1 nectar instead of ambrosia.</div>
-      <div class="card-pp">Worth 1 PP at game end</div>
-    </div>
-    <div class="card">
-      <div class="card-head">Shade of the Sailor</div>
-      <div class="card-cost">1 Ambrosia</div>
-      <div class="theme-tag">[Journey]</div>
-      <div class="card-effect">On Play: gain 2 ambrosia.<br>Each Round: +1 ambrosia.</div>
-      <div class="card-pp">Worth 1 PP at game end</div>
-    </div>
-    <div class="card">
-      <div class="card-head">Shade of the Pilgrim</div>
-      <div class="card-cost">1 Ambrosia</div>
-      <div class="theme-tag">[Journey]</div>
-      <div class="card-effect">Each Round: +1 ambrosia.<br>Once per game (free action): convert 2 ambrosia into 1 nectar.</div>
-      <div class="card-pp">Worth 1 PP at game end</div>
-    </div>
-    <div class="card">
-      <div class="card-head">Shade of the Dancer</div>
-      <div class="card-cost">2 Ambrosia</div>
-      <div class="theme-tag">[Festival]</div>
-      <div class="card-effect">Each Round: +1 ambrosia.<br>Whenever any round goal is scored, gain 1 ambrosia immediately.</div>
-      <div class="card-pp">Worth 1 PP at game end</div>
-    </div>
-    <div class="card">
-      <div class="card-head">Shade of the Reveler</div>
-      <div class="card-cost">1 Ambrosia</div>
-      <div class="theme-tag">[Festival]</div>
-      <div class="card-effect">On Play: gain 1 nectar.<br>Each Round: +1 ambrosia.</div>
-      <div class="card-pp">Worth 1 PP at game end</div>
-    </div>
-    <div class="card">
-      <div class="card-head">Shade of the Keeper</div>
-      <div class="card-cost">2 Ambrosia</div>
-      <div class="theme-tag">[Tradition]</div>
-      <div class="card-effect">Each Round: +1 ambrosia.<br>At game end: gain 1 extra PP per 4 ambrosia you are holding.</div>
-      <div class="card-pp">Worth 1 PP + end-game bonus</div>
-    </div>
-    <div class="card">
-      <div class="card-head">Shade of the Elder</div>
-      <div class="card-cost">2 Ambrosia</div>
-      <div class="theme-tag">[Tradition]</div>
-      <div class="card-effect">Each Round: +1 ambrosia.<br>All other spirit cards in your engine produce +1 extra ambrosia on odd-numbered rounds.</div>
-      <div class="card-pp">Worth 2 PP at game end</div>
-    </div>
-    <div class="card">
-      <div class="card-head">Shade of the Wanderer</div>
-      <div class="card-cost">1 Ambrosia</div>
-      <div class="theme-tag">[Journey]</div>
-      <div class="card-effect">On Play: draw 2 quest cards, keep 1, discard 1.<br>Each Round: +1 ambrosia.</div>
-      <div class="card-pp">Worth 1 PP at game end</div>
-    </div>
+<section id="cards">
+  <h2 class="st">All Cards <span id="ccl">60 Unique Card Types</span></h2>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:8px">Cards marked <span style="color:#ffd700;font-family:'Cinzel',serif;font-size:.8rem">★ UNIQUE</span> have exactly 1 copy in the entire game. Once acquired, they are gone from the market permanently.</p>
+  <input class="sb2" id="cs2" type="text" placeholder="Search by name, ability, or mythology fact..."/>
+  <div class="tab-bar">
+    <button class="tb active" data-t="all">All (60 types)</button>
+    <button class="tb" data-t="spirit">Spirits (20)</button>
+    <button class="tb" data-t="demigod">Demi-Gods (8) ★</button>
+    <button class="tb" data-t="god">Gods (12) ★</button>
+    <button class="tb" data-t="monster">Monsters (12) ★</button>
+    <button class="tb" data-t="weapon">Weapons (8)</button>
   </div>
+  <div class="cg" id="cg"></div>
 </section>
 
-<!-- ── GOD CARDS ──────────────────────────────────────────────────────────── -->
-<section id="gods">
-  <h2 class="section-title">God Cards <span>10 unique gods · 2 copies each · 20 total</span></h2>
-  <p>The Olympian gods — powerful and rare. God cards multiply your existing engine and are worth more when you already have spirits built up. Cost: 3–4 ambrosia or 1–2 nectar.</p>
+<!-- QUESTS -->
 
-  <div class="card-grid">
-    <div class="card">
-      <div class="card-head">Apollo — God of Light</div>
-      <div class="card-cost">3 Ambrosia</div>
-      <div class="theme-tag">[Tradition]</div>
-      <div class="card-effect">Each Round: +1 nectar.<br>All your spirit cards produce +1 extra ambrosia per round.</div>
-      <div class="card-pp">Worth 3 PP at game end</div>
-    </div>
-    <div class="card">
-      <div class="card-head">Athena — Goddess of Wisdom</div>
-      <div class="card-cost">4 Ambrosia</div>
-      <div class="theme-tag">[Tradition]</div>
-      <div class="card-effect">On Play: draw 3 quest cards, keep 1.<br>Your completed quests are each worth +1 bonus PP.</div>
-      <div class="card-pp">Worth 2 PP at game end</div>
-    </div>
-    <div class="card">
-      <div class="card-head">Ares — God of War</div>
-      <div class="card-cost">3 Ambrosia</div>
-      <div class="theme-tag">[Journey]</div>
-      <div class="card-effect">On Play: gain 2 ambrosia.<br>Whenever you score at Poseidon's domain, gain +2 PP per visit.</div>
-      <div class="card-pp">Worth 2 PP at game end</div>
-    </div>
-    <div class="card">
-      <div class="card-head">Hermes — Messenger God</div>
-      <div class="card-cost">3 Ambrosia</div>
-      <div class="theme-tag">[Journey]</div>
-      <div class="card-effect">Each Round: +1 ambrosia.<br>You may acquire cards from Hades' domain for 1 less ambrosia (minimum 0).</div>
-      <div class="card-pp">Worth 3 PP at game end</div>
-    </div>
-    <div class="card">
-      <div class="card-head">Demeter — Goddess of Harvest</div>
-      <div class="card-cost">1 Nectar</div>
-      <div class="theme-tag">[Tradition]</div>
-      <div class="card-effect">Each Round: +1 ambrosia and +1 nectar.</div>
-      <div class="card-pp">Worth 3 PP at game end</div>
-    </div>
-    <div class="card">
-      <div class="card-head">Dionysus — God of Revelry</div>
-      <div class="card-cost">3 Ambrosia</div>
-      <div class="theme-tag">[Festival]</div>
-      <div class="card-effect">Each Round: +2 ambrosia.<br>At the end of each round, if you met the round goal, gain +1 PP.</div>
-      <div class="card-pp">Worth 2 PP at game end</div>
-    </div>
-    <div class="card">
-      <div class="card-head">Poseidon — God of the Sea</div>
-      <div class="card-cost">2 Nectar</div>
-      <div class="theme-tag">[Journey]</div>
-      <div class="card-effect">Each Round: +1 nectar.<br>Gain +1 bonus PP per visit to Poseidon's domain.</div>
-      <div class="card-pp">Worth 3 PP at game end</div>
-    </div>
-    <div class="card">
-      <div class="card-head">Hera — Queen of Olympus</div>
-      <div class="card-cost">4 Ambrosia</div>
-      <div class="theme-tag">[Tradition]</div>
-      <div class="card-effect">On Play: gain 3 ambrosia.<br>All your god cards produce +1 extra resource per round.</div>
-      <div class="card-pp">Worth 3 PP at game end</div>
-    </div>
-    <div class="card">
-      <div class="card-head">Artemis — Goddess of the Hunt</div>
-      <div class="card-cost">3 Ambrosia</div>
-      <div class="theme-tag">[Journey]</div>
-      <div class="card-effect">Each Round: +1 nectar.<br>Once per round: treat up to 2 ambrosia as nectar when spending at Poseidon's.</div>
-      <div class="card-pp">Worth 2 PP at game end</div>
-    </div>
-    <div class="card">
-      <div class="card-head">Zeus — King of the Gods</div>
-      <div class="card-cost">2 Nectar</div>
-      <div class="theme-tag">[Festival]</div>
-      <div class="card-effect">On Play: gain 2 nectar.<br>All other players gain 1 less ambrosia from Zeus' domain each round (minimum 1).</div>
-      <div class="card-pp">Worth 3 PP at game end</div>
-    </div>
-  </div>
-</section>
-
-<!-- ── QUEST CARDS ────────────────────────────────────────────────────────── -->
 <section id="quests">
-  <h2 class="section-title">Quest Cards <span>12 unique · 2 copies each · 24 total</span></h2>
-  <p>Secret objectives dealt at setup. Each player receives 3 quest cards, keeps 2, and returns 1 face-down. Reveal a quest during your turn (free action) when its condition is met. Limit: 2 completed quests per player.</p>
-
-  <div class="tbl-wrap">
-    <table>
-      <thead>
-        <tr><th>Quest</th><th>Condition</th><th>Reward</th></tr>
-      </thead>
-      <tbody>
-        <tr><td><strong>Champion of Spirits</strong></td><td>5+ spirit cards in your engine</td><td>3 PP</td></tr>
-        <tr><td><strong>Nectar of the Gods</strong></td><td>Spend 6+ nectar total across the game</td><td>4 PP</td></tr>
-        <tr><td><strong>Favoured of Olympus</strong></td><td>2+ god cards in your engine</td><td>4 PP</td></tr>
-        <tr><td><strong>The Grand Journey</strong></td><td>Visited Hades' domain 4+ times total</td><td>3 PP</td></tr>
-        <tr><td><strong>Festival Champion</strong></td><td>Scored PP from 4+ different round goals</td><td>4 PP</td></tr>
-        <tr><td><strong>Keeper of Tradition</strong></td><td>3+ different spirit card types in your engine</td><td>3 PP</td></tr>
-        <tr><td><strong>Olympian Patron</strong></td><td>Score 10+ PP total from Poseidon's domain</td><td>4 PP</td></tr>
-        <tr><td><strong>Pilgrim's Reward</strong></td><td>1+ Journey spirit and 1+ Journey god in engine</td><td>3 PP</td></tr>
-        <tr><td><strong>Divine Collector</strong></td><td>1+ spirit and 1+ god in engine by end of round 3</td><td>2 PP</td></tr>
-        <tr><td><strong>Resourceful</strong></td><td>Hold 8+ ambrosia at any single round end</td><td>2 PP</td></tr>
-        <tr><td><strong>Sacred Rites</strong></td><td>3+ spirit cards AND 2+ god cards in engine</td><td>5 PP</td></tr>
-        <tr><td><strong>Voice of the Ages</strong></td><td>Have the Shade of the Elder in your engine</td><td>2 PP</td></tr>
-      </tbody>
-    </table>
-  </div>
+  <h2 class="st">Quest Cards <span>15 unique · 2 copies each · 30 total</span></h2>
+  <p>Dealt at setup: each player receives 3, keeps 2, returns 1 face-down. Reveal as a <strong>Free Action</strong> when the stated condition is met. Limit: <strong>2 completed quests per player per game</strong>. Athena's passive awards +1 bonus PP per completed quest.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Quest Name</th><th>Condition</th><th>Reward</th></tr></thead>
+    <tbody id="qt"></tbody>
+  </table></div>
 </section>
 
-<!-- ── ROUND GOALS ────────────────────────────────────────────────────────── -->
+<!-- ROUND GOALS -->
+
 <section id="goals">
-  <h2 class="section-title">Round Goal Cards <span>6 cards · 1 per round · shuffled</span></h2>
-  <p>One is revealed per round, visible to all. At round end, whoever qualifies wins the PP. Shuffled — players don't know the order in advance.</p>
-
-  <div class="tbl-wrap">
-    <table>
-      <thead>
-        <tr><th>Goal</th><th>Win Condition</th><th>PP</th><th>Tie Rule</th></tr>
-      </thead>
-      <tbody>
-        <tr><td><strong>Richest Olympian</strong></td><td>Most ambrosia at round end</td><td>3 PP</td><td>Most nectar wins</td></tr>
-        <tr><td><strong>Champion of Spirits</strong></td><td>Most spirit cards in engine</td><td>3 PP</td><td>Both get 2 PP</td></tr>
-        <tr><td><strong>Nectar of the Gods</strong></td><td>Most nectar at round end</td><td>3 PP</td><td>Both get 2 PP</td></tr>
-        <tr><td><strong>Touched by Olympus</strong></td><td>Most god cards in engine</td><td>4 PP</td><td>Highest combined PP value of god cards</td></tr>
-        <tr><td><strong>Master of Quests</strong></td><td>Most quests completed so far</td><td>3 PP</td><td>Both get 2 PP</td></tr>
-        <tr><td><strong>Grand Agon</strong> <em>(Round 6)</em></td><td>Most total cards in engine <em>+ all players earn 1 PP per god card they have</em></td><td>4 PP + bonus</td><td>All earn the god card bonus</td></tr>
-      </tbody>
-    </table>
-  </div>
+  <h2 class="st">Round Goal Cards <span>8 cards · shuffled · 1 revealed per round</span></h2>
+  <p>One revealed per round. Qualifying player earns the PP at round end. Shuffled at start — the order is unknown to all players.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Goal</th><th>Win Condition</th><th>PP</th><th>Tie Rule</th></tr></thead>
+    <tbody id="gt"></tbody>
+  </table></div>
 </section>
 
-<!-- ── SCORING ────────────────────────────────────────────────────────────── -->
+<!-- SCORING -->
+
 <section id="scoring">
-  <h2 class="section-title">Final Scoring</h2>
-  <p>At the end of Round 6, add all PP from every source:</p>
-
-  <div class="tbl-wrap">
-    <table>
-      <thead><tr><th>Source</th><th>Amount</th></tr></thead>
-      <tbody>
-        <tr><td>PP from Round Goals</td><td>Tracked on score track during play</td></tr>
-        <tr><td>PP from Completed Quest Cards</td><td>2–5 PP each · up to 2 quests per player</td></tr>
-        <tr><td>PP value of God Cards in Engine</td><td>2–3 PP each</td></tr>
-        <tr><td>PP value of Spirit Cards in Engine</td><td>1–2 PP each</td></tr>
-        <tr><td>Shade of the Keeper bonus (if applicable)</td><td>+1 PP per 4 ambrosia held</td></tr>
-      </tbody>
-    </table>
+  <h2 class="st">Scoring — All Sources of Patron Points</h2>
+  <div class="ss">
+    <div class="ssc"><div class="ssi">🔥</div><div class="ssn">Oracle's Fire</div><div class="ssd">2 Amb=1PP · 1 Nec=2PP · 1 Ich=3PP during play</div></div>
+    <div class="ssc"><div class="ssi">🏆</div><div class="ssn">Round Goals</div><div class="ssd">3–5 PP per round across 5–6 rounds of competition</div></div>
+    <div class="ssc"><div class="ssi">📜</div><div class="ssn">Quest Cards</div><div class="ssd">2–5 PP each · up to 2 completed per player</div></div>
+    <div class="ssc"><div class="ssi">✨</div><div class="ssn">Card End Values</div><div class="ssd">Spirits 1–2 · Demi-Gods 2–4 · Gods 2–4 PP each in engine</div></div>
+    <div class="ssc"><div class="ssi">⚔️</div><div class="ssn">Battle Wins</div><div class="ssd">+1 PP per Colosseum battle won</div></div>
+    <div class="ssc"><div class="ssi">🗡️</div><div class="ssn">Weapons in Engine</div><div class="ssd">1–3 PP per equipped weapon at game end</div></div>
+    <div class="ssc"><div class="ssi">🌟</div><div class="ssn">Glory Track</div><div class="ssd">+2 to +6 PP based on battles won + quests + monsters</div></div>
+    <div class="ssc"><div class="ssi">🔮</div><div class="ssn">Omen Tokens</div><div class="ssd">+2 PP per 3 Omen Tokens from Oracle visits</div></div>
+    <div class="ssc"><div class="ssi">🏛️</div><div class="ssn">Domain Mastery</div><div class="ssd">Most visits to a domain at game end: +2 PP per dominated domain</div></div>
+    <div class="ssc"><div class="ssi">👁️</div><div class="ssn">Monster Trophies</div><div class="ssd">Monsters removed by paying: their face PP value at game end</div></div>
   </div>
-
-  <h3>Tiebreakers (apply in order)</h3>
-  <ul class="rules">
-    <li>1st: Most resources held (ambrosia + nectar combined).</li>
-    <li>2nd: Most god cards in engine.</li>
-    <li>3rd: Most spirit cards in engine.</li>
+  <h3>Tiebreakers (in order)</h3>
+  <ul class="rl">
+    <li>Most total resources held (Ambrosia + Nectar + Ichor combined).</li>
+    <li>Most God cards in engine.</li>
+    <li>Highest Glory Track position.</li>
+    <li>Most Omen Tokens remaining.</li>
   </ul>
 </section>
 
-<!-- ── SETUP ──────────────────────────────────────────────────────────────── -->
+<!-- SETUP -->
+
 <section id="setup">
-  <h2 class="section-title">Game Setup <span>~5 minutes</span></h2>
-
-  <div class="round-steps">
-    <div class="step">
-      <div class="num">1</div>
-      <div class="content">
-        <div class="head">Place the board</div>
-        <div class="body">Separate spirit cards and god cards into two shuffled face-down decks.</div>
-      </div>
-    </div>
-    <div class="step">
-      <div class="num">2</div>
-      <div class="content">
-        <div class="head">Set up the market</div>
-        <div class="body">Reveal <strong>5 spirit cards</strong> face-up in Hades' domain. Reveal <strong>2 god cards</strong> face-up in the god section.</div>
-      </div>
-    </div>
-    <div class="step">
-      <div class="num">3</div>
-      <div class="content">
-        <div class="head">Prepare round goals</div>
-        <div class="body">Shuffle the 6 round goal cards. Place face-down in the goal slot. Reveal the top one — this is Round 1's goal.</div>
-      </div>
-    </div>
-    <div class="step">
-      <div class="num">4</div>
-      <div class="content">
-        <div class="head">Deal quest cards</div>
-        <div class="body">Shuffle all quest cards. Deal <strong>3 quest cards</strong> to each player. Each player secretly keeps 2 and returns 1 face-down to the bottom of the quest deck.</div>
-      </div>
-    </div>
-    <div class="step">
-      <div class="num">5</div>
-      <div class="content">
-        <div class="head">Give starting resources</div>
-        <div class="body">Give each player: <strong>4 ambrosia tokens</strong> + <strong>2 spirit cards</strong> (dealt from the deck into hand — not from the market).</div>
-      </div>
-    </div>
-    <div class="step">
-      <div class="num">6</div>
-      <div class="content">
-        <div class="head">Begin</div>
-        <div class="body">Youngest player takes the first player marker. The great Agon begins!</div>
-      </div>
-    </div>
+  <h2 class="st">Game Setup <span>~8 minutes</span></h2>
+  <div class="steps">
+    <div class="step"><div class="sn">1</div><div><div class="sh">Prepare the Board</div><div class="sb">Place board centrally. Mark all five domains, Glory Track (starts at 0), Domain Mastery track, and Omen Token pool.</div></div></div>
+    <div class="step"><div class="sn">2</div><div><div class="sh">Hades' Market</div><div class="sb">Shuffle Spirit (80 cards), Demi-God (8 cards), and Monster (12 cards) decks separately. Reveal <strong>4 Spirits · 2 Demi-Gods · 2 Monsters</strong> face-up in the Underworld market.</div></div></div>
+    <div class="step"><div class="sn">3</div><div><div class="sh">Forge Market</div><div class="sb">Shuffle Weapon deck (16 cards). Reveal <strong>3 Weapons</strong> face-up in Hephaestus' Forge.</div></div></div>
+    <div class="step"><div class="sn">4</div><div><div class="sh">God Deck</div><div class="sb">Shuffle all 12 God cards face-down. Place beside Hades' domain. Gods are summoned by paying their Ichor cost — reveal top 2, keep 1, return 1 to bottom of deck.</div></div></div>
+    <div class="step"><div class="sn">5</div><div><div class="sh">Round Goals</div><div class="sb">Shuffle all 8 Round Goal cards. Place face-down. Reveal the top one — this is Round 1's goal.</div></div></div>
+    <div class="step"><div class="sn">6</div><div><div class="sh">Quest Cards</div><div class="sb">Shuffle quest deck (30 cards). Deal <strong>3 quest cards</strong> to each player face-down. Each player keeps 2 and returns 1 to the bottom of the deck face-down.</div></div></div>
+    <div class="step"><div class="sn">7</div><div><div class="sh">Starting Resources</div><div class="sb">Give each player: <strong>4 Ambrosia + 1 Nectar + 2 Spirit cards</strong> dealt from the Spirit deck into hand (not from the market). All players start at 0 on the Glory Track.</div></div></div>
+    <div class="step"><div class="sn">8</div><div><div class="sh">Begin</div><div class="sb">Youngest player takes the First Player Marker. Reveal Round 1's goal card if not already visible. The Agon begins.</div></div></div>
   </div>
 </section>
 
-<!-- ── COMPONENTS ─────────────────────────────────────────────────────────── -->
+<!-- COMPONENTS -->
+
 <section id="components">
-  <h2 class="section-title">Component Manifest</h2>
-  <div class="tbl-wrap">
-    <table>
-      <thead><tr><th>Component</th><th>Count</th><th>Notes</th></tr></thead>
-      <tbody>
-        <tr><td><strong>Spirit Cards</strong></td><td>50</td><td>10 unique types, 5 copies each</td></tr>
-        <tr><td><strong>God Cards</strong></td><td>20</td><td>10 unique gods, 2 copies each</td></tr>
-        <tr><td><strong>Quest Cards</strong></td><td>24</td><td>12 unique quests, 2 copies each</td></tr>
-        <tr><td><strong>Round Goal Cards</strong></td><td>6</td><td>1 per round, no repeats</td></tr>
-        <tr><td><strong>Ambrosia Tokens</strong></td><td>50</td><td>Common currency — yellow</td></tr>
-        <tr><td><strong>Nectar Tokens</strong></td><td>24</td><td>Premium resource — blue</td></tr>
-        <tr><td><strong>Patron Point Tokens</strong></td><td>60</td><td>Or use a shared score track on the board</td></tr>
-        <tr><td><strong>Player Boards</strong></td><td>4</td><td>One per player, shows domain costs and engine area</td></tr>
-        <tr><td><strong>First Player Marker</strong></td><td>1</td><td>Passes clockwise each round</td></tr>
-        <tr><td><strong>Game Board</strong></td><td>1</td><td>Three domains + market + round track</td></tr>
-      </tbody>
-    </table>
-  </div>
+  <h2 class="st">Component Manifest</h2>
+  <div class="tw"><table>
+    <thead><tr><th>Component</th><th>Count</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Spirit Cards</strong></td><td>80</td><td>20 unique types · 4 copies each · Common</td></tr>
+      <tr><td><strong>Demi-God Cards</strong></td><td>8</td><td>8 unique heroes · <strong>1 copy each</strong> · Unique</td></tr>
+      <tr><td><strong>God Cards</strong></td><td>12</td><td>12 unique gods · <strong>1 copy each</strong> · Unique</td></tr>
+      <tr><td><strong>Monster Cards</strong></td><td>12</td><td>12 unique monsters · <strong>1 copy each</strong> · Unique · Consumed on use</td></tr>
+      <tr><td><strong>Weapon / Relic Cards</strong></td><td>16</td><td>8 unique weapons · 2 copies each · Limited</td></tr>
+      <tr><td><strong>Quest Cards</strong></td><td>30</td><td>15 unique quests · 2 copies each</td></tr>
+      <tr><td><strong>Round Goal Cards</strong></td><td>8</td><td>8 unique goals · 1 copy each · shuffled</td></tr>
+      <tr><td><strong>Ambrosia Tokens</strong></td><td>60</td><td>Yellow</td></tr>
+      <tr><td><strong>Nectar Tokens</strong></td><td>30</td><td>Blue</td></tr>
+      <tr><td><strong>Ichor Tokens</strong></td><td>20</td><td>Red / Crimson</td></tr>
+      <tr><td><strong>Patron Point Tokens</strong></td><td>100</td><td>Or use a shared score track on the board</td></tr>
+      <tr><td><strong>Omen Tokens</strong></td><td>30</td><td>Gained from Oracle's Fire visits · 3 = +2 PP</td></tr>
+      <tr><td><strong>Glory Track Markers</strong></td><td>6</td><td>One per player on the shared Glory Track</td></tr>
+      <tr><td><strong>Domain Visit Cubes</strong></td><td>30</td><td>5 per player to track Domain Mastery</td></tr>
+      <tr><td><strong>Duration Tokens</strong></td><td>20</td><td>Placed with deployed monsters to track remaining rounds</td></tr>
+      <tr><td><strong>Protection Tokens</strong></td><td>12</td><td>From Daimon and Aegis — negate 1 targeted effect</td></tr>
+      <tr><td><strong>Player Boards</strong></td><td>6</td><td>Engine area · resource storage · domain reference guide</td></tr>
+      <tr><td><strong>First Player Marker</strong></td><td>1</td><td>Olive wreath token</td></tr>
+      <tr><td><strong>Game Board</strong></td><td>1</td><td>5 domains · round track · glory track · domain mastery track</td></tr>
+    </tbody>
+  </table></div>
+  <p style="font-size:.8rem;color:var(--dim);margin-top:10px">Total physical cards: 166 &nbsp;·&nbsp; Total unique card types: 60</p>
 </section>
 
-<!-- ── QUICK REFERENCE ────────────────────────────────────────────────────── -->
-<section id="ref">
-  <h2 class="section-title">Quick Reference — Player Aid</h2>
-  <p style="font-size:0.82rem;color:var(--muted);">Print and cut — give one to each player.</p>
+<!-- QUICK REF -->
 
-  <div class="qref">
-    <div class="col">
-      <h4>YOUR TURN — TAKE 1 ACTION</h4>
+<section id="ref">
+  <h2 class="st">Quick Reference — Player Aid</h2>
+  <div class="qr">
+    <div class="qrc">
+      <h4>YOUR TURN — 2 ACTIONS (any combination)</h4>
       <ul>
-        <li>⚫ <strong>Hades:</strong> Acquire a card (pay its cost)</li>
-        <li>⚡ <strong>Zeus:</strong> +2 ambrosia or +1 nectar (+ engine bonus)</li>
-        <li>▶ <strong>Play:</strong> Move card from hand to engine</li>
-        <li>🔱 <strong>Poseidon:</strong> Score PP (3 amb=1PP / 1 nec=2PP)</li>
+        <li>🌑 <strong>Hades:</strong> Acquire card (pay cost)</li>
+        <li>⚡ <strong>Olympus:</strong> 2 Amb / 1 Nec / 1 Ich (+⚡ bonus)</li>
+        <li>▶ <strong>Play Card:</strong> Hand → Engine (On Play fires)</li>
+        <li>🔥 <strong>Oracle:</strong> Score PP + gain 1 Omen Token</li>
+        <li>🔨 <strong>Forge:</strong> Acquire weapon (equip or hold)</li>
+        <li>⚔️ <strong>Colosseum:</strong> Deploy monster / Battle / Activate weapon</li>
       </ul>
       <br>
-      <h4>FREE — NO ACTION NEEDED</h4>
+      <h4>FREE (any point on your turn)</h4>
       <ul>
-        <li>📜 Reveal a quest you've met → gain quest PP</li>
-        <li>✕ Discard 1 card → gain 1 ambrosia</li>
+        <li>📜 Complete quest (condition must be met)</li>
+        <li>✕ Discard 1 card → gain 1 Ambrosia</li>
+        <li>🛡 Pay to remove a monster afflicting you (claim trophy)</li>
       </ul>
       <br>
-      <p style="font-size:0.78rem;">Quest limit: <strong>2 per player</strong>. Engine fires FREE at round start.</p>
+      <h4>SAFETY</h4>
+      <ul>
+        <li>0 resources + 0 cards: Claim Sanctuary (once/game) = +2 Amb</li>
+        <li>Max 2 monsters on any 1 player at a time</li>
+      </ul>
     </div>
-    <div class="col">
-      <h4>POSEIDON SCORING</h4>
+    <div class="qrc">
+      <h4>ORACLE'S FIRE RATES</h4>
       <ul>
-        <li>3 ambrosia → 1 PP (base)</li>
-        <li>1 nectar → 2 PP (base)</li>
-        <li>+1 PP per 🔱 card in engine per visit</li>
+        <li>2 Ambrosia → 1 PP</li>
+        <li>1 Nectar → 2 PP</li>
+        <li>1 Ichor → 3 PP</li>
+        <li>+1 PP per 🔱 engine card per visit</li>
+        <li>3 Omen Tokens = +2 PP at game end</li>
       </ul>
       <br>
-      <h4>ROUND SEQUENCE</h4>
+      <h4>BATTLE (Free to Initiate)</h4>
       <ul>
-        <li>1. Engines fire (free)</li>
-        <li>2. Reveal round goal</li>
-        <li>3. Player turns (1 action each)</li>
-        <li>4. Score round goal</li>
-        <li>5. Pass first player marker</li>
+        <li>Attacker base: 2 · Defender base: 1</li>
+        <li>+ weapon bonuses from both sides</li>
+        <li>Attacker wins: steal 2 Amb + 1 PP + 1 Glory</li>
+        <li>Defender wins: +1 PP to defender</li>
+        <li>Attacker loses: −1 Amb to supply</li>
+        <li>Tie: both lose 1 Amb · dual auto-win = tie</li>
       </ul>
       <br>
-      <h4>GAME END</h4>
-      <p style="font-size:0.78rem;">After round 6 — total all PP. Tiebreaker: most resources, then most god cards.</p>
+      <h4>UNIQUE CARDS (★)</h4>
+      <ul>
+        <li>Gods: 1 copy each — locked once in engine</li>
+        <li>Demi-Gods: 1 copy each — locked once in engine</li>
+        <li>Monsters: 1 copy each — consumed on use</li>
+      </ul>
+      <br>
+      <h4>GAME END: 2–4P after R6 · 5–6P after R5</h4>
     </div>
   </div>
 </section>
@@ -926,24 +565,150 @@
 </main>
 
 <footer>
-  <p>AGON: The Archaic Age &nbsp;·&nbsp; Griffin Games &nbsp;·&nbsp; Rulebook v2.0</p>
-  <p style="margin-top:4px;"><a href="https://www.gamemakers.fun">www.gamemakers.fun</a></p>
+  <p style="font-family:'Cinzel',serif;font-size:.82rem;letter-spacing:.1em;color:var(--gold);margin-bottom:6px">AGON: THE ARCHAIC AGE</p>
+  <p>Griffin Games &nbsp;·&nbsp; Rulebook v4.0 &nbsp;·&nbsp; <a href="https://www.gamemakers.fun">gamemakers.fun</a></p>
 </footer>
 
 <script>
-  // Highlight active nav link on scroll
-  const sections = document.querySelectorAll('section[id]');
-  const navLinks = document.querySelectorAll('.nav a');
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        navLinks.forEach(l => l.classList.remove('active'));
-        const active = document.querySelector(`.nav a[href="#${e.target.id}"]`);
-        if (active) active.classList.add('active');
-      }
-    });
-  }, { threshold: 0.3 });
-  sections.forEach(s => observer.observe(s));
+const CARDS=[
+{"t": "spirit", "copies": 4, "n": "Satyr", "cost": "1 Amb", "fact": "Half-man, half-goat companions of Dionysus, feasting and dancing across the hills of Thrace.", "passive": "Each Round: +1 Ambrosia.", "onPlay": "Gain 2 Ambrosia immediately.", "pp": 1},
+{"t": "spirit", "copies": 4, "n": "Naiad", "cost": "1 Amb", "fact": "Freshwater nymphs of rivers and springs, each bound eternally to her source.", "passive": "Each Round: +1 Nectar from her sacred spring.", "onPlay": "Peek at any one opponent's top 2 cards. Return them in any order you choose.", "pp": 1},
+{"t": "spirit", "copies": 4, "n": "Dryad", "cost": "1 Amb", "fact": "Tree-spirits bound to a sacred oak. If the tree died, the Dryad perished with it.", "passive": "Each Round: +1 Ambrosia. For every 2 other Spirit cards in your engine: +1 extra Ambrosia per round.", "onPlay": "One opponent must discard 1 card from their hand (their choice).", "pp": 1},
+{"t": "spirit", "copies": 4, "n": "Centaur", "cost": "2 Amb", "fact": "Wild half-man, half-horse. Chiron alone was civilised — teacher to Achilles, Asclepius, and Jason.", "passive": "Each Round: +1 Ambrosia. You may use 1 Weapon card in hand once per round without exhausting it.", "onPlay": "Gain 1 Nectar. Draw 1 Spirit card from the Spirit deck into your hand.", "battlePower": "+1 extra base damage in all Colosseum battles.", "pp": 2},
+{"t": "spirit", "copies": 4, "n": "Siren", "cost": "2 Amb", "fact": "Their song lured sailors to rocky deaths. Only Odysseus survived, bound to his own mast.", "passive": "Each Round: choose one opponent — their engine produces 1 less Ambrosia this round (minimum 0 Ambrosia; other resources unaffected).", "onPlay": "Look at one opponent's full hand. Swap 1 card from your hand with 1 card of theirs. They cannot refuse.", "pp": 2},
+{"t": "spirit", "copies": 4, "n": "Phoenix", "cost": "2 Amb", "fact": "The Phoenix burned to ash every 500 years, only to rise reborn, more radiant than before.", "passive": "On odd-numbered rounds: +1 Ichor.", "onPlay": "Resurrect any 1 card from your discard pile into your hand.", "special": "If Phoenix is discarded by a monster deploy or battle effect, it returns to your hand instead of the discard pile.", "pp": 2},
+{"t": "spirit", "copies": 4, "n": "Nereid", "cost": "1 Amb", "fact": "The 50 daughters of Nereus, sea nymphs. Thetis, mother of Achilles, was the most celebrated.", "passive": "Each Round: +1 Ambrosia. When any player scores PP at Apollo's Oracle Fire, gain 1 extra Ambrosia.", "pp": 1},
+{"t": "spirit", "copies": 4, "n": "Muse", "cost": "1 Amb", "fact": "The 9 Muses inspired all arts and sciences. Calliope governed epic poetry; Urania, astronomy.", "passive": "Each Round: +1 Ambrosia.", "onPlay": "Draw 2 quest cards, keep 1, return 1 face-down.", "special": "Whenever you complete a quest: draw 1 Spirit card from the Spirit deck.", "pp": 1},
+{"t": "spirit", "copies": 4, "n": "Oread", "cost": "1 Amb", "fact": "Mountain nymphs. Echo — cursed to repeat only others' words — was an Oread who loved Narcissus.", "passive": "Each Round: +1 Ambrosia. Your Weapon cards cost 1 less Ambrosia to acquire from Hephaestus' Forge.", "pp": 1},
+{"t": "spirit", "copies": 4, "n": "Shade of Patroclus", "cost": "1 Amb", "fact": "Patroclus died wearing Achilles' armour. His death unlocked Achilles' divine rage and decided Troy.", "passive": "Each Round: +1 Ambrosia. When any God card is played by any player, you gain 1 Ambrosia.", "onPlay": "Choose one opponent — they reveal their full hand to all players.", "pp": 1},
+{"t": "spirit", "copies": 4, "n": "Shade of Sisyphus", "cost": "2 Amb", "fact": "He cheated death twice. His eternal punishment: rolling a boulder uphill forever.", "passive": "Each Round: +1 Ambrosia. At the end of your turn, push 1 face-up market card to the bottom of its deck and replace it (free).", "special": "Shade of Sisyphus cannot be removed from your engine by any monster or battle effect.", "pp": 1},
+{"t": "spirit", "copies": 4, "n": "Harpy", "cost": "1 Amb", "fact": "Winged spirits of sudden, snatching wind. Zeus used them to punish Phineas by stealing his food.", "passive": "Each Round: +1 Ambrosia. If any opponent gains 4 or more Ambrosia in a single action, steal 1 Ambrosia from them.", "onPlay": "Steal 2 Ambrosia from any one opponent.", "pp": 1},
+{"t": "spirit", "copies": 4, "n": "Lamia", "cost": "2 Amb", "fact": "A queen transformed by Hera's jealousy into a night-hunting, shapeshifting spirit of dread.", "passive": "Each Round: +1 Nectar. If an opponent looks at your hand by any card effect, they must discard 1 card immediately.", "onPlay": "Look at one opponent's hand; take 1 card from it. They gain 1 Ambrosia as tribute.", "pp": 2},
+{"t": "spirit", "copies": 4, "n": "Shade of Tantalus", "cost": "1 Amb", "fact": "He stole nectar from the gods' table. His eternal punishment: water receding whenever he reached to drink.", "passive": "Each Round: +1 Ambrosia. At each round end, for each resource you hold above 5: gain +1 PP.", "pp": 1},
+{"t": "spirit", "copies": 4, "n": "Triton", "cost": "2 Amb", "fact": "Herald of the sea, son of Poseidon. His conch-horn could calm or raise the waves at will.", "passive": "Each Round: +1 Nectar. Once per round (free action): cancel 1 Colosseum battle that targets you.", "onPlay": "One opponent loses 2 Ambrosia as Triton floods their shores.", "battlePower": "Immune to Scylla & Charybdis and Polyphemus deploy effects.", "pp": 2},
+{"t": "spirit", "copies": 4, "n": "Aether Spirit", "cost": "2 Amb", "fact": "Primordial personification of the upper atmosphere — the pure, radiant air breathed only by gods.", "passive": "Each Round: +1 Ambrosia + 1 Nectar.", "onPlay": "Gain 1 Ichor.", "pp": 2},
+{"t": "spirit", "copies": 4, "n": "Daimon", "cost": "1 Amb", "fact": "A personal guardian spirit between gods and mortals. Socrates famously heeded his Daimon's warnings.", "passive": "Each Round: +1 Ambrosia. Your cards cannot be swapped by opponent effects this round.", "onPlay": "Gain 2 Ambrosia. Gain 1 Protection Token — negates the next monster or battle effect that targets you.", "pp": 1},
+{"t": "spirit", "copies": 4, "n": "Shade of the Oracle", "cost": "2 Amb", "fact": "Oracles at Delphi and Dodona channelled divine prophecy. Generals consulted them before all wars.", "passive": "Each Round: +1 Ambrosia. On odd-numbered rounds: +1 Nectar instead.", "onPlay": "Look at (but do not rearrange) the next 2 round goal cards in the deck.", "pp": 1},
+{"t": "spirit", "copies": 4, "n": "Elysian Shade", "cost": "1 Amb", "fact": "Elysium — the paradise of the Underworld, reserved for heroes and the deeply virtuous dead.", "passive": "On odd-numbered rounds only: gain +1 PP directly (maximum +3 PP total over the game).", "onPlay": "Gain 3 Ambrosia.", "pp": 2},
+{"t": "spirit", "copies": 4, "n": "Ichthyocentaur", "cost": "2 Amb", "fact": "Sea-centaurs with a fish's tail — companions of Poseidon and attendants of Aphrodite's sea-birth.", "passive": "Each Round: +1 Nectar. When you visit Apollo's Oracle Fire, gain +1 bonus PP for that visit.", "onPlay": "Gain 1 Nectar + 1 Omen Token.", "pp": 2},
+{"t": "demigod", "copies": 1, "n": "Heracles", "cost": "3 Amb", "fact": "Heracles completed 12 Labours — the Nemean Lion, Lernaean Hydra, and Cerberus himself.", "passive": "Each Round: +1 Ambrosia + 1 Nectar. Monsters you deploy deal +1 extra damage.", "onPlay": "Destroy 1 monster afflicting any player. That player claims it as a trophy.", "battlePower": "Auto-wins any battle against a Monster card. +2 Glory per monster defeated.", "special": "If you defeat 3 or more monsters total: gain +4 PP at game end.", "pp": 3},
+{"t": "demigod", "copies": 1, "n": "Achilles", "cost": "3 Amb", "fact": "Invulnerable everywhere except his heel. Killed when Paris, guided by Apollo, shot an arrow there.", "passive": "Each Round: +1 Ambrosia + 1 Nectar.", "onPlay": "Immediately challenge any one opponent to battle. Achilles deals 3 base damage; opponent deals 0 unless they play a weapon.", "battlePower": "+2 base damage in all battles. Achilles' Heel: if your opponent plays Spear of Ares or Bow of Artemis in a battle against you, Achilles is immediately removed from your engine.", "pp": 4},
+{"t": "demigod", "copies": 1, "n": "Perseus", "cost": "3 Amb", "fact": "Perseus slew Medusa by looking at her reflection in his polished shield. From her blood sprang Pegasus.", "passive": "Each Round: +1 Nectar. Monster cards cost 1 less Ambrosia to acquire at Hades' domain.", "onPlay": "Instantly destroy Medusa or the Gorgon Sisters card from anywhere in play or in the market.", "battlePower": "Perseus' Reflection (once per game): reflect any monster deploy effect back at the player who deployed it.", "pp": 3},
+{"t": "demigod", "copies": 1, "n": "Theseus", "cost": "2 Amb + 1 Nec", "fact": "Theseus navigated the Labyrinth with Ariadne's thread, slew the Minotaur, and unified Attica.", "passive": "Each Round: +1 Ambrosia. Once per round: look at the top card of any deck (free).", "onPlay": "Remove 1 monster afflicting any player instantly and for free. Target player claims that monster as a trophy.", "battlePower": "Permanently immune to Minotaur's deploy effect.", "special": "Thread of Ariadne (once per game): when you acquire a card at Hades' domain, immediately play it to your engine for free.", "pp": 3},
+{"t": "demigod", "copies": 1, "n": "Atalanta", "cost": "2 Amb", "fact": "Atalanta challenged all suitors to a footrace. Hippomenes won only by dropping three golden apples.", "passive": "Each Round: +1 Ambrosia. You always act first in the Colosseum each round, regardless of turn order.", "onPlay": "Draw 3 quest cards, keep 2, return 1 face-down.", "battlePower": "+1 bonus PP for every Colosseum battle you win, on top of the standard reward.", "pp": 2},
+{"t": "demigod", "copies": 1, "n": "Orpheus", "cost": "2 Amb", "fact": "Orpheus charmed Hades himself with his lyre to retrieve Eurydice — but looked back and lost her forever.", "passive": "Each Round: +1 Ambrosia + 1 Nectar. While Orpheus is in your engine, Cerberus's deploy effect is automatically suppressed against all players (his music soothes the hound).", "onPlay": "All opponents skip their Free Actions (quest completion, emergency discard) this round only.", "special": "Once per game: move 1 card from any single opponent's engine back to their hand.", "pp": 3},
+{"t": "demigod", "copies": 1, "n": "Bellerophon", "cost": "3 Amb", "fact": "Bellerophon tamed Pegasus and slew the Chimera. His attempt to fly to Olympus ended in a humbling fall.", "passive": "Each Round: +1 Ambrosia + 1 Ichor.", "onPlay": "Gain 2 Ambrosia + 1 Ichor.", "battlePower": "Bellerophon cannot be targeted by Chimera's deploy effect.", "special": "Once per game: visit 2 different domains in a single action (counts as 1 action).", "pp": 3},
+{"t": "demigod", "copies": 1, "n": "Medea", "cost": "1 Amb + 1 Nec", "fact": "Used her sorcery to help Jason win the Golden Fleece. Betrayed and abandoned, she took devastating revenge.", "passive": "Each Round: +1 Nectar. Once per round: change the Ambrosia cost of any face-up market card by +1 or -1.", "onPlay": "Brew a potion — choose one: (a) gain 3 Ambrosia, (b) one opponent loses 2 Ambrosia, or (c) gain 1 Ichor.", "special": "Sorcery (once per game): trigger a copy of the On-Play effect of any one card currently in any player's engine.", "pp": 3},
+{"t": "god", "copies": 1, "n": "Zeus — King of Olympus", "cost": "3 Ich", "fact": "Zeus ruled with thunderbolt and eagle. He drew lots with Poseidon and Hades to divide sky, sea, and underworld.", "passive": "Each Round: +2 Ambrosia + 1 Nectar. All other players gain 1 less Ambrosia when visiting Zeus' Throne.", "onPlay": "Gain 3 Ambrosia + 1 Ichor. All opponents discard 1 card of their choice.", "divPower": "Storm's Wrath (once per game): destroy every monster card currently in play and in the Hades market. All players gain 2 Ambrosia.", "pp": 4},
+{"t": "god", "copies": 1, "n": "Hera — Queen of Heaven", "cost": "2 Amb + 1 Nec", "fact": "Goddess of marriage and queen of Olympus, perpetually at war with Zeus' illegitimate children.", "passive": "Each Round: +1 Ambrosia + 1 Nectar. Each God card in your engine produces +1 extra resource per round.", "onPlay": "Gain 3 Ambrosia + 1 Ichor.", "divPower": "Divine Jealousy (once per game): choose one opponent — cancel their next On-Play effect entirely. Gain 2 PP.", "pp": 3},
+{"t": "god", "copies": 1, "n": "Poseidon — Lord of the Deep", "cost": "2 Nec", "fact": "Poseidon struck his trident to create the first horse and to cause earthquakes. He lost Athens to Athena's olive tree.", "passive": "Each Round: +2 Nectar. Each time you visit Apollo's Oracle Fire: gain +1 bonus PP for that visit.", "onPlay": "All opponents lose 1 Nectar each (Poseidon claims the seas). You gain all stolen Nectar.", "divPower": "Earthquake (once per game): all opponents place 1 engine card of their choice face-down (inactive) for 1 full round.", "pp": 3},
+{"t": "god", "copies": 1, "n": "Demeter — Goddess of Harvest", "cost": "1 Nec + 1 Amb", "fact": "When Hades took Persephone, Demeter's grief caused winter. Zeus negotiated Persephone's return — creating the seasons.", "passive": "Each Round: +2 Ambrosia + 1 Nectar. Every Spirit card in your engine produces +1 extra Ambrosia per round.", "onPlay": "Gain 3 Ambrosia immediately.", "divPower": "Bountiful Harvest (once per game): all Spirit cards in your engine produce double their listed resources this round only.", "pp": 3},
+{"t": "god", "copies": 1, "n": "Apollo — God of Light & Truth", "cost": "2 Nec", "fact": "Apollo's oracle at Delphi was the most important in the ancient world. He also carried plague arrows in his silver quiver.", "passive": "Each Round: +2 Nectar. At the start of each round, look at the top card of the round goal deck.", "onPlay": "Draw 3 quest cards, keep 2, return 1 face-down.", "divPower": "Oracle's Prophecy (once per game): look at all remaining round goal cards. Rearrange them in any order you choose.", "pp": 3},
+{"t": "god", "copies": 1, "n": "Artemis — Goddess of the Hunt", "cost": "3 Amb", "fact": "Artemis punished Actaeon for seeing her bathe by turning him into a stag, torn apart by his own hounds.", "passive": "Each Round: +1 Nectar. Whenever any player acquires a Monster card, you gain 1 Ambrosia.", "onPlay": "Destroy 1 monster card anywhere in play or in the Hades market. Gain 1 PP.", "divPower": "Moonlit Hunt (once per game): all monsters afflicting all players are removed simultaneously. Gain 1 PP per monster removed.", "pp": 2},
+{"t": "god", "copies": 1, "n": "Athena — Goddess of Wisdom", "cost": "4 Amb", "fact": "Athena sprang fully armoured from Zeus' forehead. She defeated Poseidon for Athens with the gift of the olive tree.", "passive": "Each Round: +1 Ambrosia + 1 Ichor. Each quest you complete is worth +1 bonus PP.", "onPlay": "Draw 4 quest cards, keep 2, return 2 face-down.", "divPower": "Strategic Mastery (once per game): look at all opponents' hands simultaneously. Take 1 card from any one opponent's hand.", "pp": 3},
+{"t": "god", "copies": 1, "n": "Ares — God of War", "cost": "3 Amb", "fact": "Ares was disliked by most Olympians including Zeus. Only Aphrodite loved him; Athena defeated him repeatedly.", "passive": "Each Round: +1 Ambrosia + 1 Nectar. You deal +2 base damage in all Colosseum battles.", "onPlay": "Gain 2 Ambrosia. Immediately issue a battle challenge to any one opponent — they must accept the battle or lose 3 Ambrosia.", "divPower": "Bloodlust (once per game): your next 3 battles require no action (free). All Arena victories this round grant +2 PP each.", "pp": 3},
+{"t": "god", "copies": 1, "n": "Hephaestus — Smith of Olympus", "cost": "2 Amb + 1 Ich", "fact": "The lame smith-god forged Zeus' thunderbolts, Achilles' divine armour, and golden automata that worked his bellows.", "passive": "Each Round: +1 Ambrosia. All Weapon cards cost 1 less resource to acquire (Ambrosia or Ichor).", "onPlay": "Gain 1 Ichor. Immediately acquire 1 Weapon card from the Forge market for free.", "divPower": "Divine Craft (once per game): trigger a copy of the activated ability of any Weapon card currently in any player's engine.", "pp": 3},
+{"t": "god", "copies": 1, "n": "Hermes — Messenger of All Gods", "cost": "3 Amb", "fact": "Hermes guided souls to the Underworld and was the only Olympian who could freely enter Hades' realm.", "passive": "Each Round: +1 Ambrosia. After your turn ends: move 1 of your cards from one zone to another (hand, engine, or between both) freely.", "onPlay": "Look at the top 3 cards of any 2 different decks. Swap 1 card between those 2 decks.", "divPower": "Swift Messenger (once per game): take 1 extra action immediately after your normal 2 — this bonus action does not count toward your turn total.", "pp": 3},
+{"t": "god", "copies": 1, "n": "Dionysus — God of Wine & Ecstasy", "cost": "3 Amb", "fact": "God of wine, theatre, and divine madness. Torn apart by Titans as an infant, reborn from Zeus' own thigh.", "passive": "Each Round: +2 Ambrosia. Whenever you score the round goal: gain +2 PP.", "onPlay": "All players (including you) immediately gain 2 Ambrosia — the feast of Dionysus begins.", "divPower": "Divine Madness (once per game): all opponents must take a random action on their next turn (the player to their left chooses the action for them).", "pp": 2},
+{"t": "god", "copies": 1, "n": "Aphrodite — Goddess of Love", "cost": "2 Amb + 1 Nec", "fact": "Aphrodite caused the Trojan War by promising Paris the most beautiful woman for a single golden apple.", "passive": "Each Round: +1 Nectar. Choose 1 opponent per round — their Colosseum action cannot target you this round.", "onPlay": "Gain 1 Nectar + 1 Ichor. Choose 1 opponent — they must give you 1 card of their choice from their hand.", "divPower": "Irresistible Beauty (once per game): all opponents skip their next Colosseum action. Gain 1 PP per opponent skipped.", "pp": 3},
+{"t": "monster", "copies": 1, "n": "Hydra of Lerna", "cost": "Deploy: 1 Ich", "fact": "Regrew two heads for every one cut. Heracles defeated it by cauterising the stumps with a burning torch.", "deployEffect": "Target loses 1 Ambrosia at the start of each of their turns for 2 rounds. Removal costs 3 Ambrosia (Heracles: free). When duration expires naturally: discarded. When removed by target: they claim it as a trophy.", "instantUse": "Destroy 2 face-up market cards (force a reshuffle of those decks). All opponents lose 1 Ambrosia.", "pp": 2},
+{"t": "monster", "copies": 1, "n": "Medusa", "cost": "Deploy: 1 Ich", "fact": "Once beautiful; cursed by Athena. Her direct gaze turned all who looked at her to stone.", "deployEffect": "Target cannot peek at any face-down cards or opponent hands for 2 rounds. Removal: 2 Amb + 1 Nec, or Perseus (free).", "instantUse": "Look at all opponents' hands simultaneously. Steal 1 card from any single hand.", "pp": 2},
+{"t": "monster", "copies": 1, "n": "The Furies (Erinyes)", "cost": "Deploy: 1 Ich", "fact": "Born from the blood of Ouranos, they tormented oath-breakers and murderers with madness and unceasing pursuit.", "deployEffect": "Target cannot complete quest cards for 2 rounds (conscience tormented). Removal: 2 Nectar.", "instantUse": "All opponents who scored PP this round must return 1 PP each to the supply.", "pp": 2},
+{"t": "monster", "copies": 1, "n": "Minotaur", "cost": "Deploy: 1 Ich", "fact": "Born of Pasiphae and a divine bull, imprisoned in the Labyrinth, fed with seven Athenian youths each year.", "deployEffect": "Target must spend 1 extra Ambrosia on every Hades' domain visit for 2 rounds. Removal: 3 Ambrosia, or Theseus (free).", "instantUse": "Destroy 1 card from any opponent's engine (they choose which). They gain 2 Ambrosia as compensation.", "pp": 3},
+{"t": "monster", "copies": 1, "n": "Cerberus — Hound of Hades", "cost": "Deploy: 1 Ich", "fact": "Three heads, a serpent tail. Only Orpheus' music, Heracles' strength, and Hermes' cunning ever bypassed him.", "deployEffect": "Target cannot acquire any cards from Hades' domain for 2 rounds. Removal: 2 Amb + 1 Nec. Suppressed automatically if Orpheus is in any player's engine.", "instantUse": "Shuffle any 3 face-up market cards back into their respective decks, forcing those slots to refill.", "pp": 2},
+{"t": "monster", "copies": 1, "n": "Sphinx of Thebes", "cost": "Deploy: 1 Ich", "fact": "The Sphinx devoured all who failed her riddle. Oedipus answered 'Man' — she threw herself from her cliff.", "deployEffect": "Target cannot visit Apollo's Oracle Fire for 2 rounds (the riddle blocks their path to enlightenment). Removal: 3 Ambrosia.", "instantUse": "All opponents must each discard 1 card of their choice from their hand immediately.", "pp": 2},
+{"t": "monster", "copies": 1, "n": "Chimera", "cost": "Deploy: 1 Ich", "fact": "Lion-goat-serpent hybrid breathing fire. Bellerophon on Pegasus drove a lead-tipped spear into its fiery throat.", "deployEffect": "Target loses 1 Ambrosia + 1 Nectar at the start of each of their turns for 2 rounds. Removal: 3 Ambrosia. Bellerophon: immune.", "instantUse": "Destroy any 1 Weapon card currently equipped in any player's engine. All opponents lose 1 Ambrosia.", "pp": 2},
+{"t": "monster", "copies": 1, "n": "Scylla & Charybdis", "cost": "Deploy: 1 Ich", "fact": "Odysseus navigated between 6-headed Scylla and the whirlpool Charybdis, losing sailors to each passage.", "deployEffect": "When deployed: target must immediately choose — sacrifice 2 cards from hand, or lose 4 Ambrosia. Removal: 4 Ambrosia.", "instantUse": "All players (including you) must choose: discard 1 card from hand, or lose 2 Ambrosia. You choose last.", "pp": 3},
+{"t": "monster", "copies": 1, "n": "Polyphemus (Cyclops)", "cost": "Deploy: 1 Ich", "fact": "Odysseus blinded Polyphemus and escaped under his sheep — then revealed his name, enraging Poseidon.", "deployEffect": "Target's next visit to Hades' domain: they may only choose from 1 face-up market card instead of all visible cards. Removal: 3 Ambrosia. Triton: immune.", "instantUse": "Steal 3 Ambrosia from any one opponent directly.", "pp": 2},
+{"t": "monster", "copies": 1, "n": "Typhon — Father of Monsters", "cost": "Deploy: 2 Ich", "fact": "Last and greatest monster, father of Cerberus, Hydra, and Chimera. Only Zeus ultimately defeated him at Mount Etna.", "deployEffect": "Target's engine produces half resources (rounded down) for 3 rounds. They also lose 1 of each resource type at the start of each turn. Removal: 5 Amb + 1 Nec. Zeus card: automatic free removal.", "instantUse": "All opponents lose 2 Ambrosia + 1 Nectar immediately.", "pp": 4},
+{"t": "monster", "copies": 1, "n": "Gorgon Sisters (Stheno & Euryale)", "cost": "Deploy: 1 Ich", "fact": "Unlike their sister Medusa, Stheno and Euryale were immortal. They wept golden tears when Perseus took Medusa's head.", "deployEffect": "Target cannot use any Free Actions (quest completion, emergency discard, monster removal) for 2 rounds. Removal: 2 Amb + 1 Nec. Perseus: auto-destroys on play.", "instantUse": "Force all opponents to reveal their face-down quest cards. Any revealed quest must be completed immediately if its condition is met, or discarded.", "pp": 2},
+{"t": "monster", "copies": 1, "n": "Hecate's Hound", "cost": "Deploy: 1 Ich", "fact": "Hecate — goddess of magic, crossroads, and the night. Black dogs were sacrificed at every crossroads in her honour.", "deployEffect": "Target cannot gain Ichor from any source for 2 rounds. Removal: 1 Nec + 1 Amb (crossroads offering).", "instantUse": "Look at any one opponent's face-down quest cards. Swap 1 of those quests with any card from the quest discard pile.", "pp": 2},
+{"t": "weapon", "copies": 2, "n": "Thunderbolt of Zeus", "cost": "1 Ich", "fact": "Forged by the Cyclopes as thanks for release from Tartarus — the weapon that rules sky and earth.", "equipped": "Each Round: +1 Ambrosia. +2 base damage in all Colosseum battles.", "activated": "Destroy 1 monster card anywhere in play. All opponents lose 2 Ambrosia. Discard this card.", "pp": 2},
+{"t": "weapon", "copies": 2, "n": "Trident of Poseidon", "cost": "1 Ich", "fact": "With his trident, Poseidon created the first horse, caused earthquakes, and stirred the deepest seas.", "equipped": "Each Round: +1 Nectar. Each time you visit Apollo's Oracle Fire: +1 bonus PP for that visit.", "activated": "Redirect any 1 opponent's resource gain from their current action to yourself instead. Discard this card.", "pp": 2},
+{"t": "weapon", "copies": 2, "n": "Spear of Ares", "cost": "2 Amb", "fact": "Symbol of war's brutality — conquest through force alone, as opposed to Athena's strategic warfare.", "equipped": "Each Round: +1 Ambrosia. +1 base damage in all battles. Triggers Achilles' Heel if played against Achilles.", "activated": "Win any 1 Colosseum battle automatically, regardless of all other factors. If both players activate an auto-win simultaneously, treat as a tie. Discard this card.", "pp": 1},
+{"t": "weapon", "copies": 2, "n": "Aegis of Athena", "cost": "1 Amb + 1 Ich", "fact": "The Aegis bore Medusa's head, inspiring pure terror in all who saw it — gods and mortals alike.", "equipped": "Negate 1 monster deploy targeting you per round. Reduce all incoming battle damage by 1.", "activated": "Fully negate 1 monster deploy or 1 battle effect targeting any single player. Discard this card.", "pp": 2},
+{"t": "weapon", "copies": 2, "n": "Caduceus of Hermes", "cost": "2 Amb", "fact": "Two serpents entwined on a winged staff — the Caduceus brings peace. Still used as a medical symbol today.", "equipped": "Each Round: +1 Ambrosia. Once per round: freely move 1 card from your hand to your engine (counts as playing it, triggers On-Play effect).", "activated": "Remove all monsters currently afflicting you instantly. Discard this card.", "pp": 1},
+{"t": "weapon", "copies": 2, "n": "Golden Fleece", "cost": "2 Amb + 1 Nec", "fact": "Jason and the Argonauts crossed perilous seas to Colchis, where the Fleece hung guarded by a sleepless dragon.", "equipped": "Each Round: +1 Ambrosia + 1 PP directly (the Fleece's ongoing divine blessing).", "activated": "Gain 5 Ambrosia immediately. Discard this card.", "pp": 3},
+{"t": "weapon", "copies": 2, "n": "Harpe — Adamantine Sickle", "cost": "2 Amb", "fact": "Given to Perseus by Hermes — its adamantine blade was the only material that could cut divine flesh.", "equipped": "Each Round: +1 Ambrosia. Immune to Medusa and Gorgon Sisters deploy effects while equipped.", "activated": "Permanently remove 1 card from any opponent's engine (sent to their discard pile). Discard this card.", "pp": 2},
+{"t": "weapon", "copies": 2, "n": "Bow of Artemis", "cost": "1 Amb + 1 Nec", "fact": "Artemis' silver bow delivered swift death and plague. It stilled the winds before Troy when Agamemnon offended her. Triggers Achilles' Heel if played against Achilles.", "equipped": "Each Round: +1 Nectar. When any opponent deploys a monster, gain 1 Ambrosia.", "activated": "Destroy 1 monster card anywhere in play AND deal 2 extra damage to the player who deployed it. Discard this card.", "pp": 2}
+];
+const QUESTS=[["Champion of Spirits", "5 or more Spirit cards in your engine", "3 PP"], ["Nectar of the Gods", "Have spent 6 or more Nectar total over the game", "4 PP"], ["Favoured of Olympus", "2 or more God cards in your engine", "4 PP"], ["The Grand Journey", "Visited Hades' domain 4 or more times total", "3 PP"], ["Festival Champion", "Scored PP from 4 or more different round goals", "4 PP"], ["Keeper of Tradition", "4 or more different Spirit card types (by name) in engine", "3 PP"], ["Olympian Patron", "Scored 10 or more PP total from Oracle's Fire visits", "4 PP"], ["Divine Collector", "At least 1 Spirit and 1 God in engine by end of round 3", "2 PP"], ["Monster Slayer", "Removed 3 or more monsters from play (as trophies or via heroes)", "4 PP"], ["Weapon Master", "3 or more Weapon cards equipped in your engine simultaneously", "4 PP"], ["Demi-God's Legacy", "2 or more Demi-God cards in your engine", "3 PP"], ["Sacred Rites", "3 or more Spirits AND 2 or more Gods in engine at the same time", "5 PP"], ["Ichor Seeker", "Hold 5 or more Ichor at any single point during the game", "3 PP"], ["Forge Master", "Acquired 4 or more Weapon cards total over the game", "3 PP"], ["Olympian Council", "Have 1 Spirit + 1 Demi-God + 1 God + 1 Weapon all in engine", "5 PP"]];
+const GOALS=[["Richest Olympian", "Most Ambrosia at round end", "3 PP", "Most Nectar breaks tie"], ["Champion of Spirits", "Most Spirit cards in engine", "3 PP", "Both earn 2 PP"], ["Nectar Hoard", "Most Nectar at round end", "3 PP", "Both earn 2 PP"], ["Touched by Olympus", "Most God cards in engine", "4 PP", "Highest combined PP value of god cards"], ["Master of Quests", "Most quests completed so far", "3 PP", "Both earn 2 PP"], ["Arms Dealer", "Most Weapon cards equipped in engine", "3 PP", "Both earn 2 PP"], ["Ichor Hoard", "Most Ichor tokens held at round end", "3 PP", "Both earn 2 PP"], ["Grand Agon (Final Round)", "Most total cards in engine. Additionally: all players earn 1 PP per God card they have in engine", "5 PP + bonus", "All players earn the god card bonus regardless"]];
+
+function costHtml(cost){
+  if(!cost)return'';
+  return cost.split('+').map(c=>{
+    c=c.trim();
+    if(c.toLowerCase().includes('amb'))return`<span class="cp ca">🟡 ${c}</span>`;
+    if(c.toLowerCase().includes('nec'))return`<span class="cp cn2">🔵 ${c}</span>`;
+    if(c.toLowerCase().includes('ich')||c.toLowerCase().includes('deploy'))return`<span class="cp ci">🔴 ${c}</span>`;
+    return`<span class="cp ca">${c}</span>`;
+  }).join('');
+}
+function badge(t){
+  const m={spirit:['Spirit','bs'],demigod:['Demi-God','bd'],god:['God','bg2'],monster:['Monster','bm'],weapon:['Weapon','bw']};
+  const[l,c]=m[t]||['?',''];
+  return`<span class="cbg ${c}">${l}</span>`;
+}
+function uniqueTag(copies){
+  if(copies===1)return`<span class="unique-badge">★ UNIQUE</span>`;
+  return`<span style="font-size:.62rem;color:var(--dim);font-family:'Cinzel',serif">×${copies}</span>`;
+}
+function renderCard(c){
+  let b='';
+  if(c.fact)        b+=`<div class="cf">${c.fact}</div>`;
+  if(c.passive)     b+=`<div class="cs2">Passive (Engine)</div><div class="cx">${c.passive}</div>`;
+  if(c.onPlay)      b+=`<div class="cs2">On Play</div><div class="cx">${c.onPlay}</div>`;
+  if(c.special)     b+=`<div class="cs2">Special</div><div class="cx">${c.special}</div>`;
+  if(c.battlePower) b+=`<div class="cs2">Battle Power</div><div class="cx">${c.battlePower}</div>`;
+  if(c.divPower)    b+=`<div class="cs2">Divine Power</div><div class="cx">${c.divPower}</div>`;
+  if(c.deployEffect)b+=`<div class="cs2">Deploy Effect</div><div class="cx">${c.deployEffect}</div>`;
+  if(c.instantUse)  b+=`<div class="cs2">Instant Use (discard after)</div><div class="cx">${c.instantUse}</div>`;
+  if(c.equipped)    b+=`<div class="cs2">Equipped — Passive</div><div class="cx">${c.equipped}</div>`;
+  if(c.activated)   b+=`<div class="cs2">Activated — One-Time</div><div class="cx">${c.activated}</div>`;
+  return`<div class="cc" data-t="${c.t}" data-n="${c.n.toLowerCase()}">
+<div class="ch"><div class="cn">${c.n}</div>${badge(c.t)}</div>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px">
+  <div class="cc-cost">${costHtml(c.cost)}</div>
+  ${uniqueTag(c.copies)}
+</div>
+${b}
+<div class="cpp">End Value: <span class="pt">${c.pp} PP</span></div>
+</div>`;
+}
+function renderAll(ft='all',s=''){
+  const g=document.getElementById('cg');
+  const q=s.toLowerCase().trim();
+  const f=CARDS.filter(c=>{
+    const tok=ft==='all'||c.t===ft;
+    const sok=!q||c.n.toLowerCase().includes(q)||
+      (c.passive||'').toLowerCase().includes(q)||
+      (c.fact||'').toLowerCase().includes(q)||
+      (c.divPower||'').toLowerCase().includes(q)||
+      (c.deployEffect||'').toLowerCase().includes(q)||
+      (c.onPlay||'').toLowerCase().includes(q)||
+      (c.special||'').toLowerCase().includes(q)||
+      (c.equipped||'').toLowerCase().includes(q);
+    return tok&&sok;
+  });
+  g.innerHTML=f.length?f.map(renderCard).join(''):`<p style="color:var(--muted);padding:20px">No cards match.</p>`;
+  document.getElementById('ccl').textContent=f.length===CARDS.length?'60 Unique Card Types':`${f.length} cards shown`;
+}
+document.getElementById('qt').innerHTML=QUESTS.map(([n,c,p])=>`<tr><td><strong>${n}</strong></td><td>${c}</td><td><span class="pt">${p}</span></td></tr>`).join('');
+document.getElementById('gt').innerHTML=GOALS.map(([n,c,p,t])=>`<tr><td><strong>${n}</strong></td><td>${c}</td><td><span class="pt">${p}</span></td><td><em>${t}</em></td></tr>`).join('');
+let at='all';
+document.querySelectorAll('.tb').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.tb').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');at=b.dataset.t;
+    renderAll(at,document.getElementById('cs2').value);
+  });
+});
+document.getElementById('cs2').addEventListener('input',e=>renderAll(at,e.target.value));
+const secs=document.querySelectorAll('section[id]');
+const nls=document.querySelectorAll('.nav a');
+secs.forEach(s=>new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){nls.forEach(l=>l.classList.remove('active'));const a=document.querySelector(`.nav a[href="#${e.target.id}"]`);if(a)a.classList.add('active');}});},{threshold:0.25}).observe(s));
+renderAll();
 </script>
 
 </body>
